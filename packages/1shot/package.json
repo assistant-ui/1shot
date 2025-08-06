@@ -1,0 +1,53 @@
+{
+  "name": "1shot",
+  "version": "0.0.2",
+  "description": "1shot CLI",
+  "type": "module",
+  "main": "dist/index.js",
+  "bin": {
+    "1shot": "dist/index.js"
+  },
+  "scripts": {
+    "build": "tsx build.mts",
+    "dev": "vite-node -w src/index.ts",
+    "start": "node dist/index.js"
+  },
+  "keywords": [
+    "claude",
+    "ai",
+    "assistant",
+    "code",
+    "template"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@anthropic-ai/claude-code": "^1.0.69",
+    "@assistant-ui/react-core": "^0.0.3",
+    "@assistant-ui/tap": "^0.0.1",
+    "cross-spawn": "^7.0.6",
+    "fastmcp": "^3.14.0",
+    "ink": "^6.1.0",
+    "ink-select-input": "^6.2.0",
+    "react": "^19.1.1",
+    "vite": "^7.0.6",
+    "wrap-ansi": "^9.0.0",
+    "zod": "^4.0.15",
+    "zustand": "^5.0.7"
+  },
+  "devDependencies": {
+    "@anthropic-ai/sdk": "^0.58.0",
+    "@assistant-ui/x-buildutils": "workspace:*",
+    "@types/cross-spawn": "^6.0.6",
+    "@types/node": "^24.1.0",
+    "@types/react": "^19.1.9",
+    "@vitejs/plugin-react": "^4.7.0",
+    "autoprefixer": "^10.4.21",
+    "postcss": "^8.5.6",
+    "tailwindcss": "^4.1.11",
+    "tsx": "^4.20.3",
+    "typescript": "^5.9.2",
+    "vite-node": "^3.2.4",
+    "vite-tsconfig-paths": "^5.1.4"
+  }
+}
