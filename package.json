@@ -9,7 +9,8 @@
     "ci:publish": "turbo build --filter=\"./packages/*\" && changeset publish"
   },
   "devDependencies": {
-    "@types/node": "^24.1.0",
+    "@changesets/cli": "^2.29.5",
+    "@types/node": "^24.2.0",
     "tsx": "^4.20.3",
     "turbo": "^2.5.5",
     "typescript": "^5.9.2"
