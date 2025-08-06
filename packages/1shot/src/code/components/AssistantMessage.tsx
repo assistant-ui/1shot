@@ -89,7 +89,7 @@ export const ToolPartContainer = ({
   return (
     <AssistantPartContainer>
       <Text>
-        <Text bold> {toolName ?? part.type.substring(5)}</Text>
+        <Text bold>{toolName ?? part.type.substring(5)}</Text>
         {params && `(${params})`}
       </Text>
       {children}
