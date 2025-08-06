@@ -126,17 +126,6 @@ async function checkGitStatus(): Promise<void> {
 }
 
 const entryName = process.argv[2];
-if (!entryName) {
-  console.error("📖 Usage: 1shot <entry-name> [user request]");
-  console.error("\n📋 Available entries:");
-  Object.keys(registry)
-    .sort()
-    .forEach((key) => {
-      console.error(`  ▸ ${key}`);
-    });
-  console.error("  ▸ commands (interactive selector)");
-  process.exit(1);
-}
 
 // Check for API key
 const apiKey =
@@ -154,7 +143,7 @@ const apiKey =
 // }
 
 // Handle commands selector
-if (entryName === "commands") {
+if (entryName === "commands" || !entryName) {
   const CommandSelector = () => {
     const [showFullPrompts, setShowFullPrompts] = useState(false);
 
@@ -309,9 +298,16 @@ if (entryName === "commands") {
   // Don't continue to regular execution after showing selector
 } else {
   // Regular command execution for non-commands entries
-  const entry = registry[entryName];
+  const actualEntryName = entryName || process.argv[2];
+  if (!actualEntryName) {
+    // This should never happen due to the logic above, but handle it just in case
+    console.error("❌ Error: No entry name provided");
+    process.exit(1);
+  }
+  
+  const entry = registry[actualEntryName];
   if (!entry) {
-    console.error(`❌ Error: Unknown entry '${entryName}'`);
+    console.error(`❌ Error: Unknown entry '${actualEntryName}'`);
     console.error("\n📋 Available entries:");
     Object.keys(registry)
       .sort()
@@ -321,7 +317,7 @@ if (entryName === "commands") {
     console.error("  ▸ commands (interactive selector)");
     console.error("\n💡 Did you mean one of these?");
     const similar = Object.keys(registry).filter(
-      (key) => key.includes(entryName) || entryName.includes(key)
+      (key) => key.includes(actualEntryName) || actualEntryName.includes(key)
     );
     similar.forEach((key) => {
       console.error(`  ▸ ${key}`);
@@ -351,7 +347,7 @@ if (entryName === "commands") {
           console.log("\n" + "=".repeat(30));
           console.log("✅ Task Complete! 🎉");
           console.log("=".repeat(30));
-          console.log(` Entry: ${entryName}`);
+          console.log(` Entry: ${actualEntryName}`);
           if (userPrompt) {
             console.log(` Request: ${userPrompt}`);
           }

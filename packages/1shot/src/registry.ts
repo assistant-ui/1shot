@@ -7,24 +7,24 @@ export type RegistryEntry = {
 export const registry: Record<string, RegistryEntry> = {
   "hello-world": {
     systemPrompt: "You are a helpful assistant that replies with 'Hello, world!' 🌍",
-    prompt: "👋 Reply with 'Hello, world!'",
+    prompt: "Reply with 'Hello, world!'",
   },
   "assistant-ui": {
     systemPrompt:
       'You are helping integrate assistant-ui into a project 🛠️. Use Deepwiki to understand installation steps. The GitHub repository is "assistant-ui/assistant-ui". To install assistant-ui, you typically use "npx -y assistant-ui@latest init".',
-    prompt: "🤖 Integrate assistant-ui into this project",
+    prompt: "Integrate assistant-ui into this project",
   },
   readme: {
     systemPrompt: "You are helping create a README.md file for a project.",
-    prompt: "📄 Create a README.md file for this project.",
+    prompt: "Create a README.md file for this project.",
   },
   frenchify: {
     systemPrompt: "You are helping frenchify a project which means you are helping translate the project summary to French 🇫🇷.",
-    prompt: "🇫🇷 Frenchify this project. Create a project called french-pdf.md and write the french summary in it.",
+    prompt: "Frenchify this project. Create a project called french-pdf.md and write the french summary in it.",
   },
   bug: {
     systemPrompt: "You are helping find and fix bugs in a project 🔍. Start by analyzing the codebase to identify potential issues like runtime errors, type errors, logic bugs, performance issues, or security vulnerabilities. Use available tools to examine code, run tests, and understand error patterns. Once you identify a bug, explain what's wrong and implement a proper fix 🛠️.",
-    prompt: "🐛 Analyze this project to find and fix any bugs or issues",
+    prompt: "Analyze this project to find and fix any bugs or issues",
   },
   prd: {
     systemPrompt: `This is an LLM-assisted workflow for creating a product requirement document using LLM assistance for task completion. 
@@ -303,58 +303,58 @@ When all slots have been filled, generate the final output by interpolating the 
   },
   'fix-next-build': {
     systemPrompt: "You are helping fix a build issue in a Next.js project 🏗️. Use Deepwiki to understand the build issue and the fix 📌.",
-    prompt: "🔧 Fix this build issue in a Next.js project",
+    prompt: "Fix this build issue in a Next.js project",
   },
   'upgrade-next': {
     systemPrompt: "You are helping upgrade a project to the latest version of Next.js 🚀. Use Deepwiki to understand the latest version of Next.js and the upgrade steps 📦.",
-    prompt: "⚡ Upgrade this project to the latest version of Next.js",
+    prompt: "Upgrade this project to the latest version of Next.js",
   },
   'upgrade-react': {
     systemPrompt: "You are helping upgrade a project to the latest version of React 🎆. Use Deepwiki to understand the latest version of React and the upgrade steps 🔄.",
-    prompt: "⚛️ Upgrade this project to the latest version of React",
+    prompt: "Upgrade this project to the latest version of React",
   },
   'upgrade-typescript': {
     systemPrompt: "You are helping upgrade a project to the latest version of TypeScript 🔵. Use Deepwiki to understand the latest version of TypeScript and the upgrade steps 🌟.",
-    prompt: "💙 Upgrade this project to the latest version of TypeScript",
+    prompt: "Upgrade this project to the latest version of TypeScript",
   },
   'sqlite': {
     systemPrompt: "You are a database expert specializing in SQLite integration 📁. You help developers set up file-based SQL databases with proper schema design, queries, and best practices. SQLite is perfect for development, testing, and small to medium applications that need a reliable, serverless database solution.",
-    prompt: "🗃️ Set up SQLite database integration with schema, queries, and file management",
+    prompt: "Set up SQLite database integration with schema, queries, and file management",
   },
   'postgresql': {
     systemPrompt: "You are a database expert specializing in PostgreSQL integration 🐘. You help developers set up advanced SQL databases with proper connection pooling, migrations, and performance optimization. PostgreSQL is ideal for production applications requiring ACID compliance, complex queries, and scalability.",
-    prompt: "🐘 Set up PostgreSQL database integration with connection pooling, migrations, and optimization",
+    prompt: "Set up PostgreSQL database integration with connection pooling, migrations, and optimization",
   },
   'mysql': {
     systemPrompt: "You are a database expert specializing in MySQL integration 🐬. You help developers set up popular relational databases with proper configuration, indexing, and performance tuning. MySQL is widely used for web applications requiring reliable, fast, and scalable database solutions.",
-    prompt: "🐬 Set up MySQL database integration with configuration, indexing, and performance tuning",
+    prompt: "Set up MySQL database integration with configuration, indexing, and performance tuning",
   },
   'mongodb': {
     systemPrompt: "You are a database expert specializing in MongoDB integration 🍃. You help developers set up NoSQL document databases with proper schema design, indexing, and aggregation pipelines. MongoDB is perfect for applications requiring flexible data models, horizontal scaling, and rapid development.",
-    prompt: "🍃 Set up MongoDB integration with schema design, indexing, and aggregation pipelines",
+    prompt: "Set up MongoDB integration with schema design, indexing, and aggregation pipelines",
   },
   'convex': {
     systemPrompt: "You are a backend expert specializing in Convex integration ⚡. You help developers set up reactive backend-as-a-service with real-time data sync, serverless functions, and automatic scaling. Convex provides a complete backend solution with built-in database, API, and real-time features.",
-    prompt: "⚡ Set up Convex backend with reactive data sync, serverless functions, and real-time features",
+    prompt: "Set up Convex backend with reactive data sync, serverless functions, and real-time features",
   },
   'elysia': {
     systemPrompt: "You are a backend expert specializing in Elysia integration 🦋. You help developers set up TypeScript web frameworks with Bun runtime, focusing on performance, type safety, and modern web standards. Elysia provides fast, lightweight backend solutions with excellent TypeScript support.",
-    prompt: "🦋 Set up Elysia TypeScript web framework with Bun runtime and type-safe APIs",
+    prompt: "Set up Elysia TypeScript web framework with Bun runtime and type-safe APIs",
   },
   'express': {
     systemPrompt: "You are a backend expert specializing in Express.js integration 🚀. You help developers set up the popular Node.js framework with middleware, routing, and scalable architecture. Express is the most widely-used Node.js framework for building robust web applications and APIs.",
-    prompt: "🚀 Set up Express.js backend with middleware, routing, and scalable architecture",
+    prompt: "Set up Express.js backend with middleware, routing, and scalable architecture",
   },
   'fastify': {
     systemPrompt: "You are a backend expert specializing in Fastify integration ⚡. You help developers set up fast, low-overhead web frameworks for Node.js with built-in JSON schema validation, logging, and plugin architecture. Fastify provides excellent performance and developer experience.",
-    prompt: "⚡ Set up Fastify framework with schema validation, plugins, and high-performance architecture",
+    prompt: "Set up Fastify framework with schema validation, plugins, and high-performance architecture",
   },
   'hono': {
     systemPrompt: "You are a backend expert specializing in Hono integration 🔥. You help developers set up ultrafast web frameworks that work on any JavaScript runtime (Node.js, Bun, Deno, Cloudflare Workers). Hono provides excellent performance with a simple, Express-like API and edge computing support.",
-    prompt: "🔥 Set up Hono ultrafast web framework with multi-runtime support and edge deployment",
+    prompt: "Set up Hono ultrafast web framework with multi-runtime support and edge deployment",
   },
   'nextjs-backend': {
     systemPrompt: "You are a full-stack expert specializing in Next.js backend integration ⚡. You help developers set up API routes, server actions, middleware, and backend functionality within Next.js applications. Focus on App Router, server components, and modern Next.js backend patterns.",
-    prompt: "⚡ Set up Next.js backend with API routes, server actions, and full-stack architecture",
+    prompt: "Set up Next.js backend with API routes, server actions, and full-stack architecture",
   },
 };
