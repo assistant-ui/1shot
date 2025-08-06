@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Theme Test</title>
+    <style>
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            margin: 0;
+            padding: 20px;
+            transition: all 0.3s ease;
+            min-height: 100vh;
+        }
+        
+        body.light {
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            color: #1f2937;
+        }
+        
+        body.dark {
+            background: linear-gradient(135deg, #0f172a 0%, #000000 100%);
+            color: #f8fafc;
+        }
+        
+        .card {
+            background: rgba(255, 255, 255, 0.8);
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 24px;
+            margin: 20px 0;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+        
+        body.dark .card {
+            background: rgba(0, 0, 0, 0.6);
+            border: 1px solid #374151;
+        }
+        
+        .theme-button {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+        
+        .theme-button:hover {
+            background: #2563eb;
+            transform: scale(1.05);
+        }
+        
+        .current-theme {
+            display: inline-block;
+            background: #10b981;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: bold;
+        }
+        
+        body.dark .current-theme {
+            background: #059669;
+        }
+    </style>
+</head>
+<body class="light">
+    <div class="card">
+        <h1>1shot Landing - Theme Test</h1>
+        <p>Current theme: <span class="current-theme" id="theme-indicator">Light</span></p>
+        <button class="theme-button" onclick="toggleTheme()">Toggle Theme</button>
+        
+        <div class="card">
+            <h2>Sample Content</h2>
+            <p>This is how the content looks in the current theme. The background, text colors, and card styles should change smoothly when you toggle between light and dark modes.</p>
+            
+            <ul>
+                <li>Background gradients adapt to theme</li>
+                <li>Text contrast is maintained</li>
+                <li>Cards have appropriate transparency</li>
+                <li>Smooth transitions between modes</li>
+            </ul>
+        </div>
+    </div>
+    
+    <script>
+        function toggleTheme() {
+            const body = document.body;
+            const indicator = document.getElementById('theme-indicator');
+            
+            if (body.classList.contains('light')) {
+                body.classList.remove('light');
+                body.classList.add('dark');
+                indicator.textContent = 'Dark';
+            } else {
+                body.classList.remove('dark');
+                body.classList.add('light');
+                indicator.textContent = 'Light';
+            }
+        }
+        
+        // Set initial theme based on system preference
+        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            document.body.classList.remove('light');
+            document.body.classList.add('dark');
+            document.getElementById('theme-indicator').textContent = 'Dark (System)';
+        }
+        
+        // Listen for system theme changes
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
+            if (e.matches) {
+                console.log('System switched to dark mode');
+            } else {
+                console.log('System switched to light mode');
+            }
+        });
+    </script>
+</body>
+</html>
