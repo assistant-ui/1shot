@@ -1,6 +1,6 @@
 {
   "name": "1shot",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "1shot CLI",
   "type": "module",
   "main": "dist/index.js",
