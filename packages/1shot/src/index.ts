@@ -12,6 +12,7 @@ import { registry } from "./registry";
 import { spawn } from "cross-spawn";
 import { createInterface } from "node:readline";
 import SelectInput from "ink-select-input";
+import { Box, Text } from "ink";
 
 const useOnceEffect = (effect: () => void) => {
   const executed = useRef(false);
@@ -21,7 +22,7 @@ const useOnceEffect = (effect: () => void) => {
       effect();
       executed.current = true;
     }
-  }, []); // Add empty dependency array
+  }, [effect]);
 };
 
 // Function to check git status and warn user if needed
@@ -144,55 +145,88 @@ const apiKey =
 
 // Handle commands selector
 if (entryName === "commands" || !entryName) {
+  // Command categories for better organization
+  const commandCategories = {
+    "Development": ["assistant-ui", "bug", "fix-next-build"],
+    "Documentation": ["readme", "prd"],
+    "Upgrades": ["upgrade-next", "upgrade-react", "upgrade-typescript"],
+    "Databases": ["sqlite", "postgresql", "mysql", "mongodb"],
+    "Backend": ["convex", "elysia", "express", "fastify", "hono", "nextjs-backend"],
+    "Other": ["hello-world", "frenchify"],
+  };
+
   const CommandSelector = () => {
     const [showFullPrompts, setShowFullPrompts] = useState(false);
+    const [searchTerm, setSearchTerm] = useState("");
+    const [selectedCategory, setSelectedCategory] = useState("all");
+    const [showHelp, setShowHelp] = useState(false);
 
     const commands = Object.entries(registry).sort(([a], [b]) =>
       a.localeCompare(b)
     );
 
-    const items = commands.map(([key, entry]) => {
-      // Extract emoji from prompt if available
-      const emoji =
-        entry.prompt.match(/^(\p{Emoji_Presentation}|\p{Emoji}\uFE0F)/u)?.[0] ||
-        "▸";
-      // Clean prompt text for preview
-      const cleanPrompt = entry.prompt.replace(
-        /^(\p{Emoji_Presentation}|\p{Emoji}\uFE0F)\s*/u,
-        ""
+    // Filter commands based on search and category
+    const filteredCommands = commands.filter(([key, entry]) => {
+      const matchesSearch = searchTerm === "" || 
+        key.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        entry.prompt.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (entry.systemPrompt && entry.systemPrompt.toLowerCase().includes(searchTerm.toLowerCase()));
+      
+      if (selectedCategory === "all") return matchesSearch;
+      
+      const categoryCommands = commandCategories[selectedCategory as keyof typeof commandCategories] || [];
+      return matchesSearch && categoryCommands.includes(key);
+    });
+
+    // Table dimensions
+    const COL_COMMAND = 20;
+    const COL_CATEGORY = 16;
+    const COL_DESCRIPTION = 46;
+
+
+
+    // Create items for display
+    const items = filteredCommands.map(([key, entry]) => {
+      // Get category name (without emoji)
+      const categoryEntry = Object.entries(commandCategories).find(([, commands]) => 
+        commands.includes(key)
       );
-
+      const categoryName = categoryEntry ? categoryEntry[0] : "Other";
+      
+      // Clean prompt text for preview
+      const cleanPrompt = entry.prompt;
+      
       // Determine if this is a long prompt
-      const isLongPrompt = cleanPrompt.length > 1000;
-      const isLongSystemPrompt =
-        entry.systemPrompt && entry.systemPrompt.length > 1000;
+      const isLongPrompt = cleanPrompt.length > 300;
+      const isLongSystemPrompt = entry.systemPrompt && entry.systemPrompt.length > 1000;
 
-      // Show truncated or full prompt based on toggle state and length
+      // Create display prompt with length limit for table
       let displayPrompt = cleanPrompt;
-      let maxDisplayLength = 350;
-
-      if (showFullPrompts && isLongPrompt) {
-        // Show the full prompt when toggled to full view
-        maxDisplayLength = Infinity;
-        displayPrompt = cleanPrompt;
-      } else if (!showFullPrompts && isLongPrompt) {
-        displayPrompt =
-          cleanPrompt.slice(0, 300) + `... (${cleanPrompt.length} chars)`;
+      const maxDescLength = COL_DESCRIPTION - 5; // Reserve space for indicators
+      
+      if (!showFullPrompts && isLongPrompt) {
+        displayPrompt = cleanPrompt.slice(0, maxDescLength - 3) + "...";
+      } else if (showFullPrompts) {
+        displayPrompt = cleanPrompt.slice(0, maxDescLength);
       } else {
-        // For shorter prompts, show first 300 chars by default
-        displayPrompt = cleanPrompt.slice(0, 300);
+        displayPrompt = cleanPrompt.slice(0, maxDescLength);
       }
 
-      // Add indicators for long prompts/system prompts
-      let indicators = "";
-      if (isLongPrompt || isLongSystemPrompt) {
-        indicators = showFullPrompts ? " 📜 [expanded]" : " 📜 [Ctrl+F]";
-      }
-
-      const finalLabel = `${emoji} ${key} - ${displayPrompt.slice(
-        0,
-        maxDisplayLength
-      )}${displayPrompt.length > maxDisplayLength ? "..." : ""}${indicators}`;
+      // Add indicators
+      const indicators = [];
+      if (isLongPrompt) indicators.push("L");
+      if (isLongSystemPrompt) indicators.push("S");
+      const indicatorStr = indicators.length > 0 ? `[${indicators.join(",")}]` : "";
+      
+      // Combine description with indicators
+      const fullDescription = displayPrompt + (indicatorStr ? ` ${indicatorStr}` : "");
+      
+      // Create table row with borders
+      const paddedKey = key.padEnd(COL_COMMAND);
+      const paddedCategory = categoryName.padEnd(COL_CATEGORY);
+      const paddedDescription = fullDescription.padEnd(COL_DESCRIPTION);
+      
+      const finalLabel = `│ ${paddedKey}│ ${paddedCategory}│ ${paddedDescription}│`;
 
       return {
         label: finalLabel,
@@ -200,79 +234,142 @@ if (entryName === "commands" || !entryName) {
       };
     });
 
-    // Handle toggle functionality and navigation
+
+
+    // For better UX, let's simplify and only show selectable items in the selector
+    // but add visual context through better labeling
+    
+    // Enhanced category items with cleaner display
+    const enhancedCategoryItems = searchTerm === "" ? [
+      { label: "── CATEGORY FILTERS ──────────────────────────────────", value: "cat-spacer-1" },
+      { label: "  All Categories", value: "category:all" },
+      ...Object.keys(commandCategories).map(cat => ({
+        label: `  ${cat}`,
+        value: `category:${cat}`
+      })),
+      { label: "── COMMANDS ──────────────────────────────────────────", value: "cmd-spacer-1" },
+      { label: "", value: "spacer-2" }
+    ] : [];
+
+    // Create table structure in item labels themselves
+    const enhancedItems = filteredCommands.length > 0 ? [
+      { 
+        label: `┌${"─".repeat(COL_COMMAND + 1)}┬${"─".repeat(COL_CATEGORY + 1)}┬${"─".repeat(COL_DESCRIPTION + 1)}┐`,
+        value: "table-header-visual"
+      },
+      { 
+        label: `│ ${"COMMAND".padEnd(COL_COMMAND)}│ ${"CATEGORY".padEnd(COL_CATEGORY)}│ ${"DESCRIPTION".padEnd(COL_DESCRIPTION)}│`,
+        value: "table-header-labels"
+      },
+      { 
+        label: `├${"─".repeat(COL_COMMAND + 1)}┼${"─".repeat(COL_CATEGORY + 1)}┼${"─".repeat(COL_DESCRIPTION + 1)}┤`,
+        value: "table-sep-visual"
+      },
+      ...items,
+      { 
+        label: `└${"─".repeat(COL_COMMAND + 1)}┴${"─".repeat(COL_CATEGORY + 1)}┴${"─".repeat(COL_DESCRIPTION + 1)}┘`,
+        value: "table-footer-visual"
+      }
+    ] : items;
+
+    const allItems = [
+      ...enhancedCategoryItems,
+      ...enhancedItems
+    ];
+
+    // Handle input
     useInput((input, key) => {
-      if (key.ctrl && (input === "f" || input === "F")) {
+      // Help toggle
+      if (key.ctrl && input === "h") {
+        setShowHelp(!showHelp);
+        return;
+      }
+      
+      // Full prompts toggle
+      if (key.ctrl && input === "f") {
         setShowFullPrompts(!showFullPrompts);
+        return;
+      }
+      
+      // Search functionality
+      if (key.ctrl && input === "s") {
+        // Toggle search mode - for now just clear search
+        setSearchTerm("");
+        return;
+      }
+      
+      // Reset filters
+      if (key.ctrl && input === "r") {
+        setSearchTerm("");
+        setSelectedCategory("all");
+        return;
+      }
+      
+      // Handle typing for search (simplified)
+      if (!key.ctrl && !key.meta && input && input.length === 1 && /[a-zA-Z0-9\-_]/.test(input)) {
+        setSearchTerm(prev => prev + input);
+        return;
+      }
+      
+      // Backspace for search
+      if (key.backspace || key.delete) {
+        setSearchTerm(prev => prev.slice(0, -1));
         return;
       }
     });
 
     const handleSelect = async (item: any) => {
-      const selectedKey = item.value as string;
-      const selectedEntry = registry[selectedKey];
-
+      const selectedValue = item.value as string;
+      
+      // Handle non-selectable visual elements
+      const nonSelectableItems = [
+        "cat-spacer-1", "cmd-spacer-1", "spacer-2", 
+        "table-header-visual", "table-header-labels", "table-sep-visual", "table-footer-visual"
+      ];
+      if (nonSelectableItems.includes(selectedValue)) return;
+      
+      // Handle category selection
+      if (selectedValue.startsWith("category:")) {
+        const category = selectedValue.replace("category:", "");
+        setSelectedCategory(category);
+        return;
+      }
+      
+      const selectedEntry = registry[selectedValue];
       if (!selectedEntry) {
-        console.error(`❌ Error: Unknown entry '${selectedKey}'`);
+        console.error(`❌ Error: Unknown entry '${selectedValue}'`);
         process.exit(1);
       }
 
-      // Clear the screen and show clean execution
+      // Clear screen and show execution info
       console.clear();
-      console.log(`🎯 Executing Command: ${selectedKey}`);
-
-      // Show full prompt/system prompt info if they're long
-      const promptInfo = [];
-      if (selectedEntry.prompt.length > 1000) {
-        promptInfo.push(
-          `📝 Prompt (${
-            selectedEntry.prompt.length
-          } chars): ${selectedEntry.prompt.slice(0, 200)}...`
-        );
+      console.log("┌" + "─".repeat(78) + "┐");
+      console.log(`│ Executing: ${selectedValue.padEnd(65)} │`);
+      console.log("├" + "─".repeat(78) + "┤");
+      
+      // Show command info
+      const categoryEntry = Object.entries(commandCategories).find(([, commands]) => 
+        commands.includes(selectedValue)
+      );
+      if (categoryEntry) {
+        console.log(`│ Category: ${categoryEntry[0].padEnd(67)} │`);
       }
-      if (
-        selectedEntry.systemPrompt &&
-        selectedEntry.systemPrompt.length > 1000
-      ) {
-        promptInfo.push(
-          `🔧 System Prompt (${
-            selectedEntry.systemPrompt.length
-          } chars): ${selectedEntry.systemPrompt.slice(0, 200)}...`
-        );
-      }
+      
+      // Show prompt info
+      const promptPreview = selectedEntry.prompt.slice(0, 60);
+      console.log(`│ Task: ${promptPreview.padEnd(71)} │`);
+      
+      
+      console.log("└" + "─".repeat(78) + "┘");
+      console.log("");
 
-      if (promptInfo.length > 0) {
-        console.log(promptInfo.join("\n"));
-        console.log("");
-      }
-
-      // Execute the selected command immediately
+      // Execute the selected command
       try {
         const BehaviorComponent = () => {
           const assistant = useAssistantActions();
 
           useOnceEffect(() => {
             assistant.thread.send(selectedEntry.prompt);
-
-            // assistant.thread.subscribe(() => {
-            //   const state = assistant.thread.getState();
-            //   if (!state.isRunning) {
-            //     // Show summary before exiting
-            //     console.log("\n" + "=".repeat(30));
-            //     console.log("✅ Task Complete! 🎉");
-            //     console.log("=".repeat(30));
-            //     console.log(` Entry: ${selectedKey}`);
-            //     console.log(` Original prompt: ${selectedEntry.prompt}`);
-            //     if (selectedEntry.systemPrompt) {
-            //       console.log(` System prompt: ${selectedEntry.systemPrompt}`);
-            //     }
-            //     console.log(` Assistant responses: ${state.messages.filter(msg => msg.role === "assistant").length}`);
-
-            //     setTimeout(() => {
-            //       process.exit(0);
-            //     }, 3000); // Give user 3 seconds to see the summary
-            //   }
-            // });
           });
 
           return null;
@@ -290,10 +387,78 @@ if (entryName === "commands" || !entryName) {
       }
     };
 
-    return React.createElement(SelectInput, { items, onSelect: handleSelect });
+    // Help component
+    const HelpPanel = () => 
+      React.createElement(Box, { flexDirection: "column", borderStyle: "round", padding: 1, marginBottom: 1 }, [
+        React.createElement(Text, { bold: true, color: "cyan", key: "title" }, "1Shot Command Selector - Help"),
+        React.createElement(Text, { key: "space1" }, ""),
+        React.createElement(Text, { key: "help1" }, [
+          React.createElement(Text, { color: "yellow", key: "ctrl1" }, "Ctrl+H"),
+          " - Toggle this help"
+        ]),
+        React.createElement(Text, { key: "help2" }, [
+          React.createElement(Text, { color: "yellow", key: "ctrl2" }, "Ctrl+F"),
+          " - Toggle full prompt view"
+        ]),
+        React.createElement(Text, { key: "help3" }, [
+          React.createElement(Text, { color: "yellow", key: "ctrl3" }, "Ctrl+S"),
+          " - Clear search"
+        ]),
+        React.createElement(Text, { key: "help4" }, [
+          React.createElement(Text, { color: "yellow", key: "ctrl4" }, "Ctrl+R"),
+          " - Reset all filters"
+        ]),
+        React.createElement(Text, { key: "help5" }, [
+          React.createElement(Text, { color: "yellow", key: "type" }, "Type"),
+          " - Search commands"
+        ]),
+        React.createElement(Text, { key: "help6" }, [
+          React.createElement(Text, { color: "yellow", key: "back" }, "Backspace"),
+          " - Delete search characters"
+        ]),
+        React.createElement(Text, { key: "space2" }, ""),
+        React.createElement(Text, { key: "legend" }, [
+          React.createElement(Text, { color: "green", key: "icon1" }, "[L]"),
+          " = Long prompt, ",
+          React.createElement(Text, { color: "green", key: "icon2" }, "[S]"),
+          " = Long system prompt"
+        ])
+      ]);
+
+    // Status bar
+    const StatusBar = () => {
+      const statusText = [
+        searchTerm && `Search: "${searchTerm}"`,
+        selectedCategory !== "all" && `Category: ${selectedCategory}`,
+        `${filteredCommands.length} commands`,
+        showFullPrompts && "Full view",
+        "Press Ctrl+H for help"
+      ].filter(Boolean).join(" | ");
+
+      return React.createElement(Box, { marginBottom: 1 },
+        React.createElement(Text, { color: "gray" }, statusText)
+      );
+    };
+
+    return React.createElement(Box, { flexDirection: "column" }, [
+      showHelp && React.createElement(HelpPanel, { key: "help" }),
+      React.createElement(StatusBar, { key: "status" }),
+      React.createElement(SelectInput, { 
+        items: allItems, 
+        onSelect: handleSelect,
+        key: "select"
+      })
+    ].filter(Boolean));
   };
 
-  console.log("🎯 Select a 1shot command:");
+  console.clear();
+  console.log("┌" + "─".repeat(78) + "┐");
+  console.log("│" + " ".repeat(30) + "1Shot Command Center" + " ".repeat(28) + "│");
+  console.log("│" + " ".repeat(78) + "│");
+  console.log("│" + " ".repeat(20) + "Choose a command to execute in your project" + " ".repeat(15) + "│");
+  console.log("└" + "─".repeat(78) + "┘");
+  console.log("");
+  
   render(React.createElement(CommandSelector));
   // Don't continue to regular execution after showing selector
 } else {
@@ -343,27 +508,39 @@ if (entryName === "commands" || !entryName) {
       threadApi.subscribe(() => {
         const state = threadApi.getState();
         if (!state.isRunning) {
-          // Show summary before exiting
-          console.log("\n" + "=".repeat(30));
+          // Show summary but don't exit automatically
+          console.log("\n" + "=".repeat(80));
           console.log("✅ Task Complete! 🎉");
-          console.log("=".repeat(30));
-          console.log(` Entry: ${actualEntryName}`);
+          console.log("=".repeat(80));
+          console.log(` Command: ${actualEntryName}`);
           if (userPrompt) {
             console.log(` Request: ${userPrompt}`);
           }
-          console.log(` Original prompt: ${promptToSend}`);
+          console.log(` Task: ${promptToSend}`);
           if (entry.systemPrompt) {
-            console.log(` System prompt: ${entry.systemPrompt}`);
+            console.log(` System Prompt: ${entry.systemPrompt.slice(0, 100)}${entry.systemPrompt.length > 100 ? '...' : ''}`);
           }
           console.log(
-            ` Assistant responses: ${
+            ` Messages: ${state.messages.length} total (${
               state.messages.filter((msg) => msg.role === "assistant").length
-            }`
+            } assistant responses)`
           );
-
-          setTimeout(() => {
-            process.exit(0);
-          }, 3000); // Give user 3 seconds to see the summary
+          
+          // Calculate token usage
+          const usage = state.metadata?.usage;
+          if (usage && (usage.inputTokens > 0 || usage.outputTokens > 0)) {
+            console.log(` Tokens: ${usage.inputTokens + usage.outputTokens} total (${usage.inputTokens} input, ${usage.outputTokens} output)`);
+          }
+          
+          console.log("=".repeat(80));
+          console.log("");
+          console.log("🎯 What would you like to do next?");
+          console.log("  • Run another command: npx 1shot commands");
+          console.log("  • Run specific command: npx 1shot <command-name>");
+          console.log("  • Exit: Ctrl+C or close terminal");
+          console.log("");
+          
+          // Don't exit automatically - let user decide what to do next
         }
       });
     });

@@ -5,11 +5,9 @@ import { AssistantMessage } from "./AssistantMessage";
 import { Composer } from "./Composer";
 import { AnimatedSniperCircle } from "./AnimatedSniperCircle";
 import { SystemPromptBox } from "./SystemPromptBox";
-// import { SessionSummaryBox } from "./SessionSummaryBox";
 import { ThreadPrimitiveMessages, useThread } from "@assistant-ui/react-core";
 import { useTerminalSize } from "../hooks/useTerminalSize";
 import { SessionSummaryBox } from "./SessionSummaryBox";
-// import { SessionSummaryBox } from "./SessionSummaryBox";
 
 interface ChatInterfaceProps {
   showComposer?: boolean;
@@ -59,12 +57,11 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ showComposer = tru
       </Box>
       {isRunning && <AnimatedSniperCircle />}
 
-      {showComposer && isRunning && <Composer />}
-      
-     
       {!isRunning && messagesLength > 0 && systemPrompt && (
         <SessionSummaryBox systemPrompt={systemPrompt} />
       )}
+
+      {showComposer && <Composer />}
       
     </Box>
   );

@@ -6,7 +6,6 @@ import {
   useComposer,
 } from "@assistant-ui/react-core";
 import { useTextInput } from "../hooks/useTextInput";
-import { useExitOnCtrlC } from "../hooks/useExitOnCtrlC";
 import { getPastedTextPrompt, type PastedText } from "../utils/paste";
 import { CommandSelector, type RegistryEntry } from "./CommandSelector";
 
@@ -63,7 +62,8 @@ export const Composer: React.FC = () => {
   const [pastedTexts, setPastedTexts] = useState<PastedText[]>([]);
   const [showCommandSelector, setShowCommandSelector] = useState(false);
   const pasteCounterRef = useRef(1);
-  const exitState = useExitOnCtrlC(() => process.exit(0));
+  // Handle Ctrl+C to cancel/clear instead of exiting
+  const [ctrlCPressed, setCtrlCPressed] = useState(false);
   const columns = stdout?.columns ?? 80;
 
   // Sync external input → offset
@@ -148,7 +148,22 @@ export const Composer: React.FC = () => {
       return;
     }
 
-    // Always allow ESC to cancel
+    // Handle Ctrl+C to cancel/clear instead of exiting
+    if (key.ctrl && char === 'c') {
+      if (isRunning) {
+        thread.cancel();
+        setCtrlCPressed(true);
+        setTimeout(() => setCtrlCPressed(false), 2000); // Show message for 2 seconds
+      } else {
+        // Clear input when not running
+        composer.setText('');
+        setCtrlCPressed(true);
+        setTimeout(() => setCtrlCPressed(false), 1000); // Show message for 1 second
+      }
+      return;
+    }
+
+    // Always allow ESC to cancel (keep existing behavior)
     if (key.escape) {
       if (isRunning) {
         thread.cancel();
@@ -175,15 +190,24 @@ export const Composer: React.FC = () => {
   }
 
   return (
-    <Box flexDirection="column" minHeight={3}>
-      <Box borderColor="gray" borderStyle="round" paddingX={1}>
-        <Text>{"> "}</Text>
-        <Text>{renderedValue}</Text>
+    <Box flexDirection="column" minHeight={5}>
+      <Box 
+        borderColor="gray" 
+        borderStyle="round" 
+        paddingX={1} 
+        paddingY={1}
+        minHeight={3}
+        flexDirection="column"
+      >
+        <Box>
+          <Text>{"> "}</Text>
+          <Text>{renderedValue}</Text>
+        </Box>
       </Box>
-      <Box marginTop={1} flexDirection="column" minHeight={1}>
-        {exitState.pending ? (
-          <Text color="red" dimColor>
-            Press {exitState.keyName} again to exit
+      <Box marginTop={1} flexDirection="column" minHeight={2}>
+        {ctrlCPressed ? (
+          <Text color="yellow" dimColor>
+            {isRunning ? "Operation cancelled. You can continue typing." : "Input cleared. You can continue typing."}
           </Text>
         ) : message ? (
           <Text color="yellow" dimColor>
@@ -191,7 +215,7 @@ export const Composer: React.FC = () => {
           </Text>
         ) : (
           <Text dimColor>
-            Type your message and press Enter to send. Try "/1shot" for quick commands.
+            Type your message and press Enter to send. Try "/commands" for quick commands.
           </Text>
         )}
       </Box>
