@@ -11,6 +11,7 @@ export { tapCallback } from "./hooks/tap-callback";
 
 // resources
 export { tapResource } from "./hooks/tap-resource";
+export { tapInlineResource } from "./hooks/tap-inline-resource";
 // export { tapResources } from "./hooks/tap-resources";
 
 // imperative

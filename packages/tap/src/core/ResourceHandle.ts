@@ -16,6 +16,7 @@ export interface ResourceHandle<R, P> {
   getState(): R;
   subscribe(callback: () => void): Unsubscribe;
   updateInput(props: P): void;
+  dispose(): void;
 }
 
 const HandleWrapperResource = <R, P>({

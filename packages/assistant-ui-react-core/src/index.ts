@@ -26,7 +26,7 @@ export type {
   ThreadActions,
   ThreadState,
   UICommand,
-  UICommandInput,
+  SendInput as UICommandInput,
 } from "./client/types/thread-types";
 export type {
   ComposerActions,

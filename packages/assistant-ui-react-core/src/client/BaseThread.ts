@@ -1,46 +1,37 @@
 import { tapActions } from "../utils/tap-store";
+import { StateWithActions } from "./types/common-types";
 import { DefaultComposer } from "./DefaultComposer";
 import {
   ThreadState,
-  UICommandInput,
+  SendInput,
   UICommand,
   ThreadActions,
 } from "./types/thread-types";
-import { UIStateConverter } from "./UIStateConverter";
-import {
-  resource,
-  ResourceElement,
-  tapMemo,
-  tapResource,
-  tapState,
-} from "@assistant-ui/tap";
+import { resource, tapMemo, tapResource } from "@assistant-ui/tap";
 
 export namespace BaseThread {
   export type Props = {
     state: Omit<ThreadState, "composer">;
-    onSend: (commands: readonly UICommand[]) => void;
-    onCancel?: () => void;
+    onDispatch: (commands: readonly UICommand[]) => void;
   };
-  export type Result = {
-    state: ThreadState;
-    api: ThreadActions;
-  };
+  export type Result = StateWithActions<ThreadState, ThreadActions>;
 }
 
 export const BaseThread = resource(
   (config: BaseThread.Props): BaseThread.Result => {
     const composer = tapResource(
       DefaultComposer({
-        get threadAPI(): ThreadActions {
-          return api;
+        get threadActions(): ThreadActions {
+          return actions;
         },
       }),
       []
     );
 
-    const api = tapActions<ThreadActions>({
-      composer: composer.api,
-      send: (input: UICommandInput) => {
+    const actions = tapActions<ThreadActions>({
+      composer: composer.actions,
+      dispatch: config.onDispatch,
+      send: (input: SendInput) => {
         const commands: UICommand[] =
           typeof input === "string"
             ? ([
@@ -52,8 +43,6 @@ export const BaseThread = resource(
                   },
                 },
               ] as const)
-            : Array.isArray(input)
-            ? input
             : ([
                 {
                   type: "add-message",
@@ -61,12 +50,10 @@ export const BaseThread = resource(
                 },
               ] as const);
 
-        config.onSend(commands);
+        config.onDispatch(commands);
       },
       cancel: () => {
-        const cancel = config.onCancel;
-        if (!cancel) throw new Error("Cancelling is not supported");
-        cancel();
+        config.onDispatch([{ type: "cancel" }]);
       },
     });
 
@@ -79,62 +66,7 @@ export const BaseThread = resource(
 
     return {
       state,
-      api,
+      actions,
     };
   }
 );
-
-type ThreadClientAdapter<TState> = {
-  state: TState;
-  send: (payload: {
-    commands: readonly UICommand[];
-    signal: AbortSignal;
-  }) => void;
-};
-
-export namespace ThreadClient {
-  export type Config<TState> = {
-    client: ResourceElement<ThreadClientAdapter<TState>>;
-    converter: UIStateConverter<TState>;
-  };
-}
-
-export const ThreadClient = resource(<T>(config: ThreadClient.Config<T>) => {
-  const [cancelController, setCancelController] = tapState<
-    AbortController | undefined
-  >();
-
-  const converterState = tapMemo(
-    () => config.converter.getStore(),
-    [config.converter]
-  );
-
-  const { state: clientState, send } = tapResource(config.client);
-  const state = tapMemo(
-    () =>
-      converterState.convert({
-        state: clientState,
-        metadata: { isSending: cancelController !== undefined },
-      }),
-    [clientState, cancelController]
-  );
-
-  return tapResource(
-    BaseThread({
-      state,
-      onSend: (commands) => {
-        cancelController?.abort();
-        const controller = new AbortController();
-        setCancelController(controller);
-        return send({
-          commands,
-          signal: controller.signal,
-        });
-      },
-      onCancel: () => {
-        cancelController?.abort();
-        setCancelController(undefined);
-      },
-    })
-  );
-});

@@ -26,8 +26,8 @@ export const AssistantClient = store((config: AssistantClient.Config) => {
   );
 
   const actions = tapActions<AssistantActions>({
-    thread: thread.api,
-    composer: thread.api.composer,
+    thread: thread.actions,
+    composer: thread.actions.composer,
   });
 
   return {

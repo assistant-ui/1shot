@@ -7,15 +7,12 @@ import {
   commitResource,
 } from "../core/ResourceFiber";
 
-const shouldUseIsomorphicLayoutEffect =
-  (globalThis as any).__ASSISTANT_UI_USE_ISOMORPHIC_LAYOUT_EFFECT__ === true;
+const shouldAvoidLayoutEffect =
+  (globalThis as any).__ASSISTANT_UI_DISABLE_LAYOUT_EFFECT__ === true;
 
-const isSSR =
-  typeof window === "undefined" ||
-  /ServerSideRendering/.test(window.navigator && window.navigator.userAgent);
-
-const useIsomorphicLayoutEffect =
-  shouldUseIsomorphicLayoutEffect && isSSR ? useEffect : useLayoutEffect;
+const useIsomorphicLayoutEffect = shouldAvoidLayoutEffect
+  ? useEffect
+  : useLayoutEffect;
 
 export function useResource<R, P>(element: ResourceElement<R, P>): R {
   const [, rerender] = useState({});

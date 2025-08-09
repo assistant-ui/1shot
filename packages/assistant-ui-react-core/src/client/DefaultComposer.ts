@@ -1,17 +1,15 @@
 import { resource, tapState, tapMemo } from "@assistant-ui/tap";
 import { ComposerState, ComposerActions } from "./types/composer-types";
+import { StateWithActions } from "./types/common-types";
 import { ThreadActions } from "./types/thread-types";
 import { tapActions } from "../utils/tap-store";
 
 export namespace DefaultComposer {
   export type Props = {
-    threadAPI: ThreadActions;
+    threadActions: ThreadActions;
   };
 
-  export type Result = {
-    readonly state: ComposerState;
-    readonly api: ComposerActions;
-  };
+  export type Result = StateWithActions<ComposerState, ComposerActions>;
 }
 
 export const DefaultComposer = resource(
@@ -20,11 +18,11 @@ export const DefaultComposer = resource(
 
     const state = tapMemo(() => ({ text }), [text]);
 
-    const api = tapActions({
+    const actions = tapActions({
       setText,
       send: () => {
         if (text.trim()) {
-          config.threadAPI.send({
+          config.threadActions.send({
             role: "user",
             parts: [{ type: "text", text }],
           });
@@ -35,7 +33,7 @@ export const DefaultComposer = resource(
 
     return {
       state,
-      api,
+      actions,
     };
   }
 );

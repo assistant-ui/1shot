@@ -16,17 +16,22 @@ export type AddToolApprovalUICommand = {
   readonly decision: "approve" | "reject";
 };
 
-export type UICommand = AddMessageUICommand | AddToolApprovalUICommand;
+export type CancelUICommand = {
+  readonly type: "cancel";
+};
 
-export type UICommandInput =
-  | string
-  | AddMessageUICommand["message"]
-  | readonly UICommand[];
+export type UICommand =
+  | AddMessageUICommand
+  | AddToolApprovalUICommand
+  | CancelUICommand;
+
+export type SendInput = string | AddMessageUICommand["message"];
 
 export type ThreadActions = {
   composer: ComposerActions;
 
-  send(commands: UICommandInput): void;
+  dispatch(commands: UICommand[]): void;
+  send(commands: SendInput): void;
   cancel(): void;
 };
 

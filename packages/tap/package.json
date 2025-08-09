@@ -5,6 +5,7 @@
   "description": "Zero-dependency reactive state management inspired by React hooks",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "sideEffects": false,
   "scripts": {
     "build": "tsx build.mts",
     "prepublishOnly": "pnpm turbo build",
