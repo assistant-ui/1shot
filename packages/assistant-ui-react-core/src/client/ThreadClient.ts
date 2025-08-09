@@ -10,26 +10,16 @@ import {
 import { BaseThread } from "./BaseThread";
 import { ConnectionMetadata, UIStateConverter } from "./UIStateConverter";
 import { UICommand } from "./types/thread-types";
-import { AssistantStream } from "./AssistantStream";
+import { createAssistantStream } from "../stream/createAssistantStream";
+import { ReadonlyJSONValue } from "../utils/json-types";
 
-type AssistantStreamThreadBackendProps<TState> = {
+type AssistantStreamThreadBackendProps<TState extends ReadonlyJSONValue> = {
   initialState: TState;
   onSend: (state: TState, commands: readonly UICommand[]) => void;
 };
 
-// the code for encoding assistant-stream should be in the startAssistantStreamBackend
-
-const createAssistantStream = <TState>(
-  initialState: TState,
-  handler: (state: TState) => void
-): AssistantStream<TState> => {
-  return {
-    [Symbol.asyncIterator]: async function* () {},
-  };
-};
-
 export const AssistantStreamThreadBackend = resource(
-  <TState>({
+  <TState extends ReadonlyJSONValue>({
     initialState,
     onSend,
   }: AssistantStreamThreadBackendProps<TState>): ThreadBackend<TState> => {
@@ -47,9 +37,10 @@ export const AssistantStreamThreadBackend = resource(
 
         busyPromiseRef.current = new Promise(async (resolve) => {
           try {
-            const stream = createAssistantStream(stateRef.current, (state) =>
-              onSend(state, commands)
-            );
+            const stream = createAssistantStream({
+              defaultValue: stateRef.current,
+              execute: () => onSend(stateRef.current, commands),
+            });
 
             for await (const chunk of stream) {
               stateRef.current = chunk.snapshot;
