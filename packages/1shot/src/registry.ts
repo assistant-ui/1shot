@@ -16,5 +16,9 @@ export const registry: Record<string, RegistryEntry> = {
       }
     }
   },
-  
+  "readme": {
+     systemPrompt: "You are helping create a README.md file. Use Deepwiki to understand how to create a README.md file. The GitHub repository is 'assistant-ui/assistant-ui'. To install assistant-ui, you typically use 'npx -y assistant-ui@latest init'.",
+    prompt: "Create a README.md file for this project",
+  }
+   
 };
