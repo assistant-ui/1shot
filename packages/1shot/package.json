@@ -1,6 +1,6 @@
 {
   "name": "1shot",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "1shot CLI",
   "type": "module",
   "main": "dist/index.js",
@@ -17,7 +17,8 @@
     "ai",
     "assistant",
     "code",
-    "template"
+    "template",
+    "oneshot"
   ],
   "author": "",
   "license": "MIT",
