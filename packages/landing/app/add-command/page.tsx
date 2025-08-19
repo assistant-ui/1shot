@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
-import { Copy, Check, Terminal, Code, GitPullRequest, FileText, Server, Sparkles, BookOpen, ExternalLink } from 'lucide-react'
+import { Copy, Check, Terminal, GitPullRequest, FileText, Server, Sparkles, BookOpen, ExternalLink } from 'lucide-react'
 import { SharedHeader } from '@/components/shared-header'
 import Link from 'next/link'
 
@@ -138,7 +138,7 @@ export default function AddCommandGuidePage() {
                 </div>
               </div>
               <p className="text-sm text-gray-500 mt-4 italic">
-                More MCP server integrations coming soon! We're actively working on expanding support.
+                More MCP server integrations coming soon! We&apos;re actively working on expanding support.
               </p>
             </div>
           </Card>
@@ -279,7 +279,7 @@ git push origin main
                       <li>Describe what your command does</li>
                       <li>Include example use cases</li>
                       <li>Mention any dependencies or requirements</li>
-                      <li>Note if you're using MCP servers</li>
+                      <li>Note if you&apos;re using MCP servers</li>
                     </ul>
                   </div>
                 </div>
@@ -299,7 +299,7 @@ git push origin main
                 <div>
                   <h3 className="font-semibold text-gray-800 mb-1">Clear Naming</h3>
                   <p className="text-gray-600 text-sm">
-                    Use descriptive, kebab-case names that clearly indicate the command's purpose (e.g., `stripe-checkout`, `jwt-auth`)
+                    Use descriptive, kebab-case names that clearly indicate the command&apos;s purpose (e.g., `stripe-checkout`, `jwt-auth`)
                   </p>
                 </div>
               </div>

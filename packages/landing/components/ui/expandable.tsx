@@ -27,9 +27,6 @@ export function Expandable({
   children,
   expanded,
   onToggle,
-  expandDirection: _expandDirection = "both",
-  expandBehavior: _expandBehavior = "replace",
-  initialDelay: _initialDelay = 0,
   onExpandStart,
   onExpandEnd,
 }: ExpandableProps) {
@@ -89,7 +86,6 @@ export function ExpandableCard({
   className,
   collapsedSize = { width: 300, height: 200 },
   expandedSize = { width: 400, height: 400 },
-  hoverToExpand: _hoverToExpand = false,
   expandDelay = 0,
   collapseDelay = 0,
 }: ExpandableCardProps) {
