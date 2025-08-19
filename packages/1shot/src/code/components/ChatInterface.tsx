@@ -102,3 +102,4 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
     </Box>
   );
 };
+};

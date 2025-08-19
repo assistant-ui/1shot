@@ -30,10 +30,10 @@ importers:
         specifier: ^1.0.70
         version: 1.0.70
       '@assistant-ui/react-core':
-        specifier: ^0.0.3
+        specifier: ^0.0.4
         version: link:../assistant-ui-react-core
       '@assistant-ui/tap':
-        specifier: ^0.0.1
+        specifier: ^0.0.2
         version: link:../tap
       cross-spawn:
         specifier: ^7.0.6
@@ -106,7 +106,7 @@ importers:
   packages/assistant-ui-react-core:
     dependencies:
       '@assistant-ui/tap':
-        specifier: ^0.0.1
+        specifier: ^0.0.2
         version: link:../tap
       react:
         specifier: ^19.1.1

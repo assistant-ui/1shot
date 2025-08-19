@@ -1,6 +1,6 @@
 {
   "name": "1shot",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "1shot CLI",
   "type": "module",
   "main": "dist/index.js",
@@ -24,8 +24,8 @@
   "license": "MIT",
   "dependencies": {
     "@anthropic-ai/claude-code": "^1.0.70",
-    "@assistant-ui/react-core": "^0.0.3",
-    "@assistant-ui/tap": "^0.0.1",
+    "@assistant-ui/react-core": "^0.0.4",
+    "@assistant-ui/tap": "^0.0.2",
     "cross-spawn": "^7.0.6",
     "fastmcp": "^3.14.0",
     "ink": "^6.1.0",
