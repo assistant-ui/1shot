@@ -23,6 +23,16 @@ export const registry: Record<string, RegistryEntry> = {
   "ux": {
     systemPrompt: "Act like a UX design engineer. You are helping improve the ux of this project.",
     prompt: "Improve the ux of this project",
+  },
+  "stripe": {
+    systemPrompt: "You are helping integrate Stripe into this project. ",
+    prompt: "Integrate Stripe into this project. ",
+    mcpServers: {
+      "stripe": {
+        "command": "npx",
+        "args": ["-y", "@stripe/mcp-stripe"]
+      }
+    }
   }
    
 };
