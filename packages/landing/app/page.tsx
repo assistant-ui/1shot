@@ -137,7 +137,7 @@ export default function HomePage() {
           {/* Main headline */}
           <div className="opacity-0 animate-fade-in-delay">
             <h1 className="text-2xl lg:text-5xl font-black mb-6 leading-none tracking-tight">
-              <span className="block text-gray-900">Oneshot Features</span>
+              <span className="block text-gray-900">Oneshot Features in Your Codebase</span>
             </h1>
           </div>
 

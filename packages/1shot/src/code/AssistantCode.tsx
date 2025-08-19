@@ -125,7 +125,7 @@ export class AssistantCode {
           ...(this._sessionId ? { resume: this._sessionId } : {}),
           abortController: this.currentAbortController,
           permissionMode: "acceptEdits",
-          allowedTools: ["mcp__deepwiki", "mcp__assistant-ui", "Write", "Edit", "MultiEdit"],
+          allowedTools: ["mcp__deepwiki", "mcp__assistant-ui", "Write", "Edit", "MultiEdit", "mcp__permissions__Progress"],
           permissionPromptToolName: "mcp__permissions__approval_prompt",
           appendSystemPrompt: this._options.systemPrompt!,
           mcpServers: {
