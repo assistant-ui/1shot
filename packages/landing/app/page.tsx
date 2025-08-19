@@ -76,7 +76,7 @@ export default function HomePage() {
   const baseText = 'npx 1shot '
 
   useEffect(() => {
-    const commands = ['assistant-ui', 'readme']
+    const commands = ['assistant-ui', 'readme', 'ux']
     let index = 0
     let isTyping = true
     let timer: NodeJS.Timeout

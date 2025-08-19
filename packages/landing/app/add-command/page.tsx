@@ -152,23 +152,6 @@ export default function AddCommandGuidePage() {
               <div className="flex items-start gap-4">
                 <div className="w-10 h-10 rounded-xl bg-gradient-to-r from-blue-500 to-blue-600 flex items-center justify-center text-white font-bold text-lg shadow-lg">1</div>
                 <div className="flex-1">
-                  <h3 className="text-xl font-semibold mb-3">Fork the Repository</h3>
-                  <p className="text-gray-600 mb-4">
-                    Start by forking the 1shot repository to your GitHub account:
-                  </p>
-                  <CodeBlock title="Clone your fork" language="bash">
-{`git clone https://github.com/YOUR_USERNAME/1shot.git
-cd 1shot`}
-                  </CodeBlock>
-                </div>
-              </div>
-            </Card>
-
-            {/* Step 2 */}
-            <Card className="p-6 bg-white/80 border-gray-200">
-              <div className="flex items-start gap-4">
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-r from-indigo-500 to-indigo-600 flex items-center justify-center text-white font-bold text-lg shadow-lg">2</div>
-                <div className="flex-1">
                   <h3 className="text-xl font-semibold mb-3">Edit the Registry</h3>
                   <p className="text-gray-600 mb-4">
                     Open <code className="bg-gray-100 px-2 py-1 rounded text-sm">packages/1shot/src/registry.ts</code> and add your command:
@@ -196,10 +179,10 @@ cd 1shot`}
               </div>
             </Card>
 
-            {/* Step 3 */}
+            {/* Step 2 */}
             <Card className="p-6 bg-white/80 border-gray-200">
               <div className="flex items-start gap-4">
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-r from-purple-500 to-purple-600 flex items-center justify-center text-white font-bold text-lg shadow-lg">3</div>
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-r from-indigo-500 to-indigo-600 flex items-center justify-center text-white font-bold text-lg shadow-lg">2</div>
                 <div className="flex-1">
                   <h3 className="text-xl font-semibold mb-3">Command Examples</h3>
                   <p className="text-gray-600 mb-4">
@@ -246,10 +229,10 @@ cd 1shot`}
               </div>
             </Card>
 
-            {/* Step 4 */}
+            {/* Step 3 */}
             <Card className="p-6 bg-white/80 border-gray-200">
               <div className="flex items-start gap-4">
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-r from-green-500 to-green-600 flex items-center justify-center text-white font-bold text-lg shadow-lg">4</div>
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-r from-purple-500 to-purple-600 flex items-center justify-center text-white font-bold text-lg shadow-lg">3</div>
                 <div className="flex-1">
                   <h3 className="text-xl font-semibold mb-3">Test Your Command</h3>
                   <p className="text-gray-600 mb-4">
@@ -269,10 +252,10 @@ npx ./packages/1shot your-command-name`}
               </div>
             </Card>
 
-            {/* Step 5 */}
+            {/* Step 4 */}
             <Card className="p-6 bg-white/80 border-gray-200">
               <div className="flex items-start gap-4">
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold text-lg shadow-lg">5</div>
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-r from-green-500 to-green-600 flex items-center justify-center text-white font-bold text-lg shadow-lg">4</div>
                 <div className="flex-1">
                   <h3 className="text-xl font-semibold mb-3">Submit a Pull Request</h3>
                   <p className="text-gray-600 mb-4">
