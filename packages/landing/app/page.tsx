@@ -137,7 +137,7 @@ export default function HomePage() {
           {/* Main headline */}
           <div className="opacity-0 animate-fade-in-delay">
             <h1 className="text-2xl lg:text-5xl font-black mb-6 leading-none tracking-tight">
-              <span className="block text-gray-900">Oneshot Your Codebase</span>
+              <span className="block text-gray-900">Oneshot Features</span>
             </h1>
           </div>
 
@@ -189,14 +189,16 @@ export default function HomePage() {
                   View Prompt Registry
                 </Button>
               </Link>
-              <Button 
-                variant="outline" 
-                size="lg"
-                className="px-8 py-3 border-gray-300 text-gray-700 hover:text-gray-900 hover:border-gray-400 hover:bg-gray-100 backdrop-blur-sm rounded-xl transition-all duration-300"
-              >
-                <Code className="w-5 h-5 mr-2" />
-                Add Your Own Command
-              </Button>
+              <Link href="/add-command">
+                <Button 
+                  variant="outline" 
+                  size="lg"
+                  className="px-8 py-3 border-gray-300 text-gray-700 hover:text-gray-900 hover:border-gray-400 hover:bg-gray-100 backdrop-blur-sm rounded-xl transition-all duration-300"
+                >
+                  <Code className="w-5 h-5 mr-2" />
+                  Add Your Own Command
+                </Button>
+              </Link>
             </div>
           </div>
         </div>
