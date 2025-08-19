@@ -5,6 +5,7 @@ import { createPermissionsStore } from "./mcp/permissions";
 export interface AssistantCodeConfig {
   apiKey: string;
   systemPrompt?: string | undefined;
+  mcpServers?: Record<string, { command: string; args: string[] }> | undefined;
 }
 
 const promiseWithResolvers = <T,>() => {
@@ -39,7 +40,7 @@ export class AssistantCode {
   private isStreamActive = false;
   private currentAbortController: AbortController | null = null;
 
-  constructor(_options: AssistantCodeConfig) {
+  constructor(private readonly _options: AssistantCodeConfig) {
     this.permissionsStore = createPermissionsStore();
     const {
       promise: mcpPortPromise,
@@ -123,10 +124,12 @@ export class AssistantCode {
         options: {
           ...(this._sessionId ? { resume: this._sessionId } : {}),
           abortController: this.currentAbortController,
-          permissionMode: "default",
-          allowedTools: ["mcp__deepwiki", "Read", "Write", "Edit", "MultiEdit"],
+          permissionMode: "acceptEdits",
+          allowedTools: ["mcp__deepwiki", "mcp__assistant-ui", "Write", "Edit", "MultiEdit"],
           permissionPromptToolName: "mcp__permissions__approval_prompt",
+          appendSystemPrompt: this._options.systemPrompt!,
           mcpServers: {
+            ...(this._options.mcpServers || {}),
             permissions: {
               type: "http",
               url: `http://localhost:${await this
@@ -165,39 +168,6 @@ export class AssistantCode {
     this.closeStream();
   }
 
-  // Legacy method for backwards compatibility
-  async *sendMessage(
-    prompt: string,
-    systemPrompt: string | undefined,
-    abortController: AbortController
-  ): AsyncGenerator<SDKMessage> {
-    // Use the old implementation for single messages
-    for await (const message of query({
-      prompt,
-      options: {
-        ...(this._sessionId ? { resume: this._sessionId } : {}),
-        abortController,
-        permissionMode: "default",
-        ...(systemPrompt ? { appendSystemPrompt: systemPrompt } : {}),
-        allowedTools: ["mcp__deepwiki", "Read", "Write", "Edit"],
-        permissionPromptToolName: "mcp__permissions__approval_prompt",
-        mcpServers: {
-          permissions: {
-            type: "http",
-            url: `http://localhost:${await this
-              ._mcpPortPromise}/mcp/permissions`,
-          },
-          deepwiki: {
-            type: "http",
-            url: "https://mcp.deepwiki.com/mcp",
-          },
-        },
-      },
-    })) {
-      this._sessionId = message.session_id;
-      yield message;
-    }
-  }
 
   async stop(): Promise<void> {
     this.abortStream();

@@ -44,7 +44,7 @@ export type {
 // client
 export { useAssistantClient } from "./react-context/assistant/useAssistantClient";
 export { AssistantClient } from "./client/AssistantClient";
-export { BaseThread, ThreadClient } from "./client/BaseThread";
+export { BaseThread } from "./client/BaseThread";
 export { createConverter } from "./client/UIStateConverter";
 
 // tool

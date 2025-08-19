@@ -2,6 +2,7 @@ import { render } from "ink";
 import { ChatProvider } from "./AssistantCodeThread";
 import { ChatInterface } from "./components/ChatInterface";
 import { AssistantCodeConfig } from "./AssistantCode";
+import { ProgressProvider } from "./contexts/ProgressContext";
 
 export type { AssistantCodeConfig } from "./AssistantCode";
 
@@ -14,9 +15,11 @@ export const renderAssistantCode = (config: RenderAssistantCodeConfig) => {
   const { BehaviorComponent = () => null, showComposer = true, systemPrompt, ...assistantConfig } = config;
   
   render(
-    <ChatProvider config={assistantConfig}>
-      <ChatInterface showComposer={showComposer} systemPrompt={systemPrompt} />
-      <BehaviorComponent />
-    </ChatProvider>
+    <ProgressProvider>
+      <ChatProvider config={assistantConfig}>
+        <ChatInterface showComposer={showComposer} systemPrompt={systemPrompt} />
+        <BehaviorComponent />
+      </ChatProvider>
+    </ProgressProvider>
   );
 };

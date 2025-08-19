@@ -1,3 +1,4 @@
+import React from "react";
 import { SDKMessage } from "@anthropic-ai/claude-code";
 import {
   AssistantProvider,
@@ -25,6 +26,7 @@ import {
 } from "@assistant-ui/tap";
 import { highlightCodeWithStrings } from "./utils/syntaxHighlight";
 import { StoreApi } from "zustand";
+import { useProgress } from "./contexts/ProgressContext";
 
 type AssistantCodeThreadConfig = {
   config: AssistantCodeConfig;
@@ -178,7 +180,7 @@ export const AssistantCodeThread = resource(
     return tapResource(
       BaseThread({
         state: combinedState,
-        onSend: async (commands: readonly UICommand[]) => {
+        onDispatch: async (commands: readonly UICommand[]) => {
           if (commands.length !== 1) throw new Error("Not implemented");
           const command = commands[0]!;
           if (command.type === "add-tool-approval") {
@@ -194,6 +196,12 @@ export const AssistantCodeThread = resource(
                 }
               });
 
+            return;
+          }
+          if (command.type === "cancel") {
+            assistantCode.abortStream();
+            setActiveStreamIterator(null);
+            setIsFirstMessage(true);
             return;
           }
 
@@ -241,14 +249,20 @@ export const AssistantCodeThread = resource(
                     setMessages((messages) => [...messages, result.value]);
                     setIsRunning(result.value.type !== "result");
                   } catch (error) {
-                    console.error(error);
+                    // Don't log AbortErrors as they are expected when user cancels
+                    if (!(error instanceof Error && error.name === 'AbortError')) {
+                      console.error(error);
+                    }
                   }
                 }
                 setIsRunning(false);
                 setActiveStreamIterator(null);
                 setIsFirstMessage(true);
               } catch (error) {
-                console.error(error);
+                // Don't log AbortErrors as they are expected when user cancels
+                if (!(error instanceof Error && error.name === 'AbortError')) {
+                  console.error(error);
+                }
                 setIsRunning(false);
                 setActiveStreamIterator(null);
                 setIsFirstMessage(true);
@@ -258,14 +272,12 @@ export const AssistantCodeThread = resource(
             // Start processing the stream
             processStream();
           } catch (error) {
-            console.error(error);
+            // Don't log AbortErrors as they are expected when user cancels
+            if (!(error instanceof Error && error.name === 'AbortError')) {
+              console.error(error);
+            }
             setIsRunning(false);
           }
-        },
-        onCancel: () => {
-          assistantCode.abortStream();
-          setActiveStreamIterator(null);
-          setIsFirstMessage(true);
         },
       })
     );
@@ -279,6 +291,13 @@ declare global {
         input: {
           file_path: string;
           content: string;
+        };
+        output: {};
+      };
+      mcp__permissions__Progress: {
+        input: {
+          title: string;
+          percentageDone: number;
         };
         output: {};
       };
@@ -448,6 +467,14 @@ declare global {
 const toolkit: Toolkit = {
   Write: backendTool({
     render: ({ state, input }) => {
+      const { setSubtitle } = useProgress();
+      
+      React.useEffect(() => {
+        if (state !== "input-streaming" && input?.file_path) {
+          setSubtitle(`Writing: ${relative(process.cwd(), input.file_path)}`);
+        }
+      }, [state, input, setSubtitle]);
+      
       return (
         <ToolPartContainer
           params={
@@ -475,6 +502,30 @@ const toolkit: Toolkit = {
               )}
             </>
           )}
+        </ToolPartContainer>
+      );
+    },
+  }),
+  mcp__permissions__Progress: backendTool({
+    render: ({ input, output }) => {
+      console.log("input", input);
+      console.log("output", output);
+      const { setProgress, setSubtitle } = useProgress();
+      
+      // Use useEffect with proper dependencies
+      React.useEffect(() => {
+        if (input?.title !== undefined && input?.percentageDone !== undefined) {
+          setProgress(input.title, input.percentageDone);
+          setSubtitle(undefined);
+        }
+      }, [input?.title, input?.percentageDone]); // Only depend on the actual values, not the functions
+      
+      // Display in the message thread
+      return (
+        <ToolPartContainer toolName="Progress Update">
+          <Text color="cyan">
+            📊 {input?.title || 'Progress'} - {input?.percentageDone || 0}%
+          </Text>
         </ToolPartContainer>
       );
     },
@@ -518,6 +569,14 @@ const toolkit: Toolkit = {
   }),
   Read: backendTool({
     render: ({ input, output }) => {
+      const { setSubtitle } = useProgress();
+      
+      React.useEffect(() => {
+        if (input?.file_path) {
+          setSubtitle(`Reading: ${relative(process.cwd(), input.file_path)}`);
+        }
+      }, [input, setSubtitle]);
+      
       const lineCount = output ? output.split("\n").length : 0;
       return (
         <ToolPartContainer toolName="Read File" params={input.file_path}>
@@ -568,6 +627,17 @@ const toolkit: Toolkit = {
   }),
   Bash: backendTool({
     render: ({ state, input, output }) => {
+      const { setSubtitle } = useProgress();
+      
+      React.useEffect(() => {
+        if (state !== "input-streaming" && input?.command) {
+          const cmd = input.command.length > 50 
+            ? input.command.substring(0, 47) + '...'
+            : input.command;
+          setSubtitle(`Running: ${cmd}`);
+        }
+      }, [state, input, setSubtitle]);
+      
       return (
         <ToolPartContainer
           toolName="Bash"
@@ -591,6 +661,14 @@ const toolkit: Toolkit = {
   }),
   Edit: backendTool({
     render: ({ state, input }) => {
+      const { setSubtitle } = useProgress();
+      
+      React.useEffect(() => {
+        if (state !== "input-streaming" && input?.file_path) {
+          setSubtitle(`Editing: ${relative(process.cwd(), input.file_path)}`);
+        }
+      }, [state, input, setSubtitle]);
+      
       return (
         <ToolPartContainer
           toolName="Edit"
@@ -634,6 +712,17 @@ const toolkit: Toolkit = {
   }),
   Grep: backendTool({
     render: ({ input, output }) => {
+      const { setSubtitle } = useProgress();
+      
+      React.useEffect(() => {
+        if (input?.pattern) {
+          const pattern = input.pattern.length > 30 
+            ? input.pattern.substring(0, 27) + '...'
+            : input.pattern;
+          setSubtitle(`Searching: "${pattern}"`);
+        }
+      }, [input, setSubtitle]);
+      
       return (
         <ToolPartContainer toolName="Grep" params={input.pattern}>
           {output && <Text>{output.split("\n").slice(0, 10).join("\n")}</Text>}
@@ -643,6 +732,14 @@ const toolkit: Toolkit = {
   }),
   LS: backendTool({
     render: ({ input, output }) => {
+      const { setSubtitle } = useProgress();
+      
+      React.useEffect(() => {
+        if (input?.path) {
+          setSubtitle(`Listing: ${input.path || '.'}`);
+        }
+      }, [input, setSubtitle]);
+      
       return (
         <ToolPartContainer toolName="LS" params={input.path}>
           {output && <Text>{output.split("\n").slice(0, 10).join("\n")}</Text>}
@@ -746,6 +843,7 @@ const toolkit: Toolkit = {
       );
     },
   }),
+
   mcp__ide__getDiagnostics: backendTool({
     render: ({ input, output }) => {
       return (
@@ -770,6 +868,7 @@ const toolkit: Toolkit = {
       );
     },
   }),
+  
 };
 
 export const ChatProvider = ({

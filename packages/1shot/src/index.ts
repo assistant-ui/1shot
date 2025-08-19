@@ -1,16 +1,42 @@
 #!/usr/bin/env node
 
+// Filter out npm warnings and other noise early in the process
+const originalConsoleWarn = console.warn;
+const originalStderrWrite = process.stderr.write;
+
+const shouldFilterEarly = (message: string) => {
+  return (
+    message.includes("npm warn Unknown project config") ||
+    message.includes("link-workspace-packages") ||
+    message.includes("prefer-workspace-packages") ||
+    message.includes("This will stop working in the next major version of npm")
+  );
+};
+
+console.warn = (...args: any[]) => {
+  const message = args.join(" ");
+  if (!shouldFilterEarly(message)) {
+    originalConsoleWarn(...args);
+  }
+};
+
+// Also hijack stderr for npm warnings that might come through that way
+process.stderr.write = function (chunk: any, encoding?: any, callback?: any) {
+  const message = chunk.toString();
+  if (!shouldFilterEarly(message)) {
+    return originalStderrWrite.call(this, chunk, encoding, callback);
+  }
+  return true;
+};
+
 import * as React from "react";
 import { useEffect, useRef, useState } from "react";
 import { render, useInput } from "ink";
 import {
   useAssistantActions,
-  useThreadStoreApi,
 } from "@assistant-ui/react-core";
 import { renderAssistantCode } from "./code";
 import { registry } from "./registry";
-import { spawn } from "cross-spawn";
-import { createInterface } from "node:readline";
 import SelectInput from "ink-select-input";
 import { Box, Text } from "ink";
 
@@ -26,105 +52,105 @@ const useOnceEffect = (effect: () => void) => {
 };
 
 // Function to check git status and warn user if needed
-async function checkGitStatus(): Promise<void> {
-  try {
-    // Check if we're in a git repository
-    const gitStatus = spawn("git", ["status"], { stdio: "pipe" });
-    const gitStatusPromise = new Promise<boolean>((resolve) => {
-      gitStatus.on("exit", (code: number | null) => resolve(code === 0));
-      gitStatus.on("error", () => resolve(false));
-    });
+// async function checkGitStatus(): Promise<void> {
+//   try {
+//     // Check if we're in a git repository
+//     const gitStatus = spawn("git", ["status"], { stdio: "pipe" });
+//     const gitStatusPromise = new Promise<boolean>((resolve) => {
+//       gitStatus.on("exit", (code: number | null) => resolve(code === 0));
+//       gitStatus.on("error", () => resolve(false));
+//     });
 
-    if (!(await gitStatusPromise)) {
-      console.log("⚠️  Warning: Not in a git repository 📁");
-      console.log(
-        "   This means your changes won't be tracked by version control 🚫"
-      );
-      console.log("   Consider initializing a git repository first 🔧\n");
+//     if (!(await gitStatusPromise)) {
+//       console.log("⚠️  Warning: Not in a git repository 📁");
+//       console.log(
+//         "   This means your changes won't be tracked by version control 🚫"
+//       );
+//       console.log("   Consider initializing a git repository first 🔧\n");
 
-      const rl = createInterface({
-        input: process.stdin,
-        output: process.stdout,
-      });
+//       const rl = createInterface({
+//         input: process.stdin,
+//         output: process.stdout,
+//       });
 
-      return new Promise((resolve) => {
-        rl.question("Press Enter to continue anyway... ⏎ ", () => {
-          rl.close();
-          resolve();
-        });
-      });
-    }
+//       return new Promise((resolve) => {
+//         rl.question("Press Enter to continue anyway... ⏎ ", () => {
+//           rl.close();
+//           resolve();
+//         });
+//       });
+//     }
 
-    // Check if git working directory is clean
-    const gitDiff = spawn("git", ["diff", "--quiet"], { stdio: "pipe" });
-    const gitDiffPromise = new Promise<boolean>((resolve) => {
-      gitDiff.on("exit", (code: number | null) => resolve(code === 0));
-      gitDiff.on("error", () => resolve(true)); // Assume clean on error
-    });
+//     // Check if git working directory is clean
+//     const gitDiff = spawn("git", ["diff", "--quiet"], { stdio: "pipe" });
+//     const gitDiffPromise = new Promise<boolean>((resolve) => {
+//       gitDiff.on("exit", (code: number | null) => resolve(code === 0));
+//       gitDiff.on("error", () => resolve(true)); // Assume clean on error
+//     });
 
-    if (!(await gitDiffPromise)) {
-      console.log("⚠️  Warning: Git working directory is not clean 🔀");
-      console.log("   You have uncommitted changes in your repository 📝");
-      console.log(
-        "   Consider committing or stashing your changes before proceeding 💾\n"
-      );
+//     if (!(await gitDiffPromise)) {
+//       console.log("⚠️  Warning: Git working directory is not clean 🔀");
+//       console.log("   You have uncommitted changes in your repository 📝");
+//       console.log(
+//         "   Consider committing or stashing your changes before proceeding 💾\n"
+//       );
 
-      const rl = createInterface({
-        input: process.stdin,
-        output: process.stdout,
-      });
+//       const rl = createInterface({
+//         input: process.stdin,
+//         output: process.stdout,
+//       });
 
-      return new Promise((resolve) => {
-        rl.question("Press Enter to continue anyway... ⏎ ", () => {
-          rl.close();
-          resolve();
-        });
-      });
-    }
+//       return new Promise((resolve) => {
+//         rl.question("Press Enter to continue anyway... ⏎ ", () => {
+//           rl.close();
+//           resolve();
+//         });
+//       });
+//     }
 
-    // Check if there are untracked files
-    const gitLsFiles = spawn(
-      "git",
-      ["ls-files", "--others", "--exclude-standard"],
-      { stdio: "pipe" }
-    );
-    let untrackedFiles = "";
-    gitLsFiles.stdout?.on("data", (data: Buffer) => {
-      untrackedFiles += data.toString();
-    });
+//     // Check if there are untracked files
+//     const gitLsFiles = spawn(
+//       "git",
+//       ["ls-files", "--others", "--exclude-standard"],
+//       { stdio: "pipe" }
+//     );
+//     let untrackedFiles = "";
+//     gitLsFiles.stdout?.on("data", (data: Buffer) => {
+//       untrackedFiles += data.toString();
+//     });
 
-    const gitLsFilesPromise = new Promise<boolean>((resolve) => {
-      gitLsFiles.on("exit", (code: number | null) => resolve(code === 0));
-      gitLsFiles.on("error", () => resolve(true)); // Assume no untracked files on error
-    });
+//     const gitLsFilesPromise = new Promise<boolean>((resolve) => {
+//       gitLsFiles.on("exit", (code: number | null) => resolve(code === 0));
+//       gitLsFiles.on("error", () => resolve(true)); // Assume no untracked files on error
+//     });
 
-    await gitLsFilesPromise;
+//     await gitLsFilesPromise;
 
-    if (untrackedFiles.trim()) {
-      console.log(
-        "⚠️  Warning: You have untracked files in your repository 📄"
-      );
-      console.log(
-        "   Consider adding them to .gitignore or committing them 📋\n"
-      );
+//     if (untrackedFiles.trim()) {
+//       console.log(
+//         "⚠️  Warning: You have untracked files in your repository 📄"
+//       );
+//       console.log(
+//         "   Consider adding them to .gitignore or committing them 📋\n"
+//       );
 
-      const rl = createInterface({
-        input: process.stdin,
-        output: process.stdout,
-      });
+//       const rl = createInterface({
+//         input: process.stdin,
+//         output: process.stdout,
+//       });
 
-      return new Promise((resolve) => {
-        rl.question("Press Enter to continue anyway... ⏎ ", () => {
-          rl.close();
-          resolve();
-        });
-      });
-    }
-  } catch (error) {
-    console.log("⚠️  Warning: Could not check git status ❓");
-    console.log("   Continuing anyway... 🚀\n");
-  }
-}
+//       return new Promise((resolve) => {
+//         rl.question("Press Enter to continue anyway... ⏎ ", () => {
+//           rl.close();
+//           resolve();
+//         });
+//       });
+//     }
+//   } catch (error) {
+//     console.log("⚠️  Warning: Could not check git status ❓");
+//     console.log("   Continuing anyway... 🚀\n");
+//   }
+// }
 
 const entryName = process.argv[2];
 
@@ -302,12 +328,6 @@ if (entryName === "commands" || !entryName) {
       if (key.ctrl && input === "r") {
         setSearchTerm("");
         setSelectedCategory("all");
-        return;
-      }
-      
-      // Handle typing for search (simplified)
-      if (!key.ctrl && !key.meta && input && input.length === 1 && /[a-zA-Z0-9\-_]/.test(input)) {
-        setSearchTerm(prev => prev + input);
         return;
       }
       
@@ -494,55 +514,15 @@ if (entryName === "commands" || !entryName) {
   const userPrompt = process.argv.slice(3).join(" ").trim();
 
   // Check git status before proceeding
-  await checkGitStatus();
+  // await checkGitStatus();
 
   const BehaviorComponent = () => {
     const assistant = useAssistantActions();
-    const threadApi = useThreadStoreApi();
 
     useOnceEffect(() => {
       // Use user prompt if provided, otherwise use default entry prompt
       const promptToSend = userPrompt || entry.prompt;
       assistant.thread.send(promptToSend);
-
-      threadApi.subscribe(() => {
-        const state = threadApi.getState();
-        if (!state.isRunning) {
-          // Show summary but don't exit automatically
-          console.log("\n" + "=".repeat(80));
-          console.log("✅ Task Complete! 🎉");
-          console.log("=".repeat(80));
-          console.log(` Command: ${actualEntryName}`);
-          if (userPrompt) {
-            console.log(` Request: ${userPrompt}`);
-          }
-          console.log(` Task: ${promptToSend}`);
-          if (entry.systemPrompt) {
-            console.log(` System Prompt: ${entry.systemPrompt.slice(0, 100)}${entry.systemPrompt.length > 100 ? '...' : ''}`);
-          }
-          console.log(
-            ` Messages: ${state.messages.length} total (${
-              state.messages.filter((msg) => msg.role === "assistant").length
-            } assistant responses)`
-          );
-          
-          // Calculate token usage
-          const usage = state.metadata?.usage;
-          if (usage && (usage.inputTokens > 0 || usage.outputTokens > 0)) {
-            console.log(` Tokens: ${usage.inputTokens + usage.outputTokens} total (${usage.inputTokens} input, ${usage.outputTokens} output)`);
-          }
-          
-          console.log("=".repeat(80));
-          console.log("");
-          console.log("🎯 What would you like to do next?");
-          console.log("  • Run another command: npx 1shot commands");
-          console.log("  • Run specific command: npx 1shot <command-name>");
-          console.log("  • Exit: Ctrl+C or close terminal");
-          console.log("");
-          
-          // Don't exit automatically - let user decide what to do next
-        }
-      });
     });
 
     return null;
@@ -552,6 +532,7 @@ if (entryName === "commands" || !entryName) {
     renderAssistantCode({
       apiKey: apiKey,
       systemPrompt: entry.systemPrompt,
+      mcpServers: entry.mcpServers,
       showComposer: true,
       BehaviorComponent,
     });

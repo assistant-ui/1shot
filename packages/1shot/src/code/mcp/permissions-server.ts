@@ -15,7 +15,17 @@ const shouldFilter = (message: string) => {
     message.includes("server is running on HTTP Stream") ||
     message.includes("Transport type: httpStream") ||
     message.includes("HTTP Stream session established") ||
-    message.includes("establishing new SSE stream")
+    message.includes("establishing new SSE stream") ||
+    message.includes("AbortError: Claude Code process aborted by user") ||
+    message.includes("Claude Code process aborted") ||
+    message.includes("process aborted by user") ||
+    message.includes("AbortError") ||
+    message.includes("The operation was aborted") ||
+    message.includes("This operation was aborted") ||
+    message.includes("npm warn Unknown project config") ||
+    message.includes("link-workspace-packages") ||
+    message.includes("prefer-workspace-packages") ||
+    message.includes("This will stop working in the next major version of npm")
   );
 };
 
@@ -133,6 +143,27 @@ export const startMCPServer = (
           },
         });
       });
+    },
+  });
+
+  server.addTool({
+    name: "Progress",
+    description: "Report progress on the current task. MUST be called first thing and at significant milestones: (1) At task start (0-10%), (2) When completing major phases or subtasks, (3) Before and after important operations like file creation, API calls, or installations, (4) At regular intervals during long operations, (5) At task completion (100%). This keeps users informed about what's happening in real-time.",
+    parameters: z.object({
+      title: z.string().describe("Brief, clear description of the current action or milestone (e.g., 'Analyzing project structure', 'Installing dependencies', 'Creating components')"),
+      percentageDone: z.number().min(0).max(100).describe("Overall task completion percentage from 0 to 100"),
+    }),
+    execute: async ({ title, percentageDone }) => {
+      // The actual progress update is handled by the UI components
+      // This tool just acknowledges the progress update
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Progress updated: ${title} (${percentageDone}%)`,
+          },
+        ],
+      };
     },
   });
 

@@ -8,6 +8,7 @@ import {
   useToolPart,
 } from "@assistant-ui/react-core";
 import { PermissionRequest } from "./PermissionRequest";
+import { useProgress } from "../contexts/ProgressContext";
 
 const BlinkingText = ({ children }: { children: React.ReactNode }) => {
   const [isBlinking, setIsBlinking] = useState(false);
@@ -58,6 +59,15 @@ export const ToolPartContainer = ({
 }) => {
   const part = useToolPart();
   const actions = useAssistantActions();
+  const { addToolCall } = useProgress();
+
+  // Track tool calls for progress display
+  useEffect(() => {
+    if (part.state === "output-available" || part.state === "output-error") {
+      const displayName = toolName ?? part.type.substring(5);
+      addToolCall(displayName);
+    }
+  }, [part.state, toolName, part.type, addToolCall]);
 
   if (part.state === "pending-approval") {
     return (
@@ -65,7 +75,7 @@ export const ToolPartContainer = ({
         tool_name={part.type.substring(5)}
         input={part.input}
         onApprove={() => {
-          actions.thread.send([
+          actions.thread.dispatch([
             {
               type: "add-tool-approval",
               toolCallId: part.toolCallId,
@@ -74,7 +84,7 @@ export const ToolPartContainer = ({
           ]);
         }}
         onDeny={() => {
-          actions.thread.send([
+          actions.thread.dispatch([
             {
               type: "add-tool-approval",
               toolCallId: part.toolCallId,

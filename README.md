@@ -1,175 +1,152 @@
-# 1shot
+# 🎯 1shot
 
-**One command, infinite possibilities.**
+> 🤖 AI-powered CLI tool for instant task automation with Claude
 
-A powerful AI-powered CLI tool that executes complex development tasks with a single command. Built on top of `assistant-code` and designed for maximum developer productivity.
+[![Version](https://img.shields.io/npm/v/1shot.svg)](https://www.npmjs.com/package/1shot)
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
-## 🚀 Quick Start
+## 📖 Overview
+
+1shot is a revolutionary command-line tool that transforms complex development tasks into single commands. Built on Claude AI and the robust `@anthropic-ai/claude-code` foundation, it enables developers to complete hours of work in minutes through intelligent automation.
+
+The framework includes a powerful assistant UI system with Model Context Protocol (MCP) support, enabling sophisticated tool interactions, permission management, and real-time progress tracking.
+
+## ✨ Features
+
+- 🚀 **Single-command execution** - Complete complex tasks instantly
+- 🤖 **AI-powered automation** - Leverages Claude for intelligent task completion
+- 📝 **Smart documentation** - Generate comprehensive READMEs and docs
+- 🔧 **Build error fixing** - Automatically resolve TypeScript and build issues
+- 📦 **Dependency management** - Upgrade packages with breaking change handling
+- 🎯 **Interactive selector** - Beautiful terminal UI for command discovery
+- 🔄 **Git-aware** - Protects uncommitted changes and tracks modifications
+- ⚡ **Real-time streaming** - Watch AI work with live progress updates
+
+## 📦 Installation
 
 ```bash
 # Install globally
 npm install -g 1shot
 
-# Set up your API key
-export ANTHROPIC_API_KEY="your-api-key"
-
-# Run a command
-npx 1shot readme
-```
-
-## ✨ Features
-
-- 🎯 **One-shot execution** - Complex tasks completed with a single command
-- 🤖 **Pre-configured AI assistants** - Purpose-built for common development workflows
-- 📋 **Interactive command selector** - Browse and select from available commands
-- 🔄 **Git-aware** - Warns about uncommitted changes before execution
-- ⏸️ **ESC to pause** - Interrupt execution safely at any time
-- 🎨 **Beautiful CLI** - Built with Ink and React for an exceptional terminal experience
-- 📊 **Task summaries** - Clear completion reports for every execution
-
-## 📦 Available Commands
-
-| Command | Description |
-|---------|-------------|
-| `assistant-ui` | Integrate assistant-ui into your project |
-| `bug` | Find and fix bugs in your codebase |
-| `fix-next-build` | Resolve Next.js build issues |
-| `readme` | Generate comprehensive README files |
-| `prd` | Create Product Requirements Documents with JTBD, RICE, and MoSCoW methodologies |
-| `frenchify` | Translate project summaries to French |
-| `upgrade-next` | Upgrade to the latest version of Next.js |
-| `upgrade-react` | Upgrade to the latest version of React |
-| `upgrade-typescript` | Upgrade to the latest version of TypeScript |
-| `hello-world` | Simple greeting command for testing |
-
-## 🛠️ Usage
-
-### Basic Usage
-```bash
-# Run a specific command
-npx 1shot <command-name>
-
-# Run with custom instructions
-npx 1shot <command-name> "custom instructions here"
-
-# Interactive mode - browse available commands
+# Or use directly with npx
 npx 1shot
 ```
 
-### Examples
+## 🚀 Quick Start
+
+1. **Set up your API key:**
 ```bash
-# Generate a README for your project
-npx 1shot readme
-
-# Fix build issues with custom context
-npx 1shot fix-next-build "Focus on TypeScript errors"
-
-# Create a comprehensive PRD
-npx 1shot prd "Build a task management app"
+export ANTHROPIC_API_KEY=your-api-key-here
 ```
 
-## ⚙️ Setup
-
-### Prerequisites
-- Node.js (with ESM support)
-- Anthropic API key
-
-### API Key Configuration
-Set your API key using one of these environment variables:
+2. **Run your first command:**
 ```bash
-export ANTHROPIC_API_KEY="your-api-key"
-# or
-export ASSISTANT_CODE_API_KEY="your-api-key"
+# Launch interactive command selector
+1shot
+
+# Or run a specific command
+1shot readme
 ```
 
-### Installation
-```bash
-# Global installation (recommended)
-npm install -g 1shot
+## 📋 Available Commands
 
-# Or run without installing
-npx 1shot
+### 📝 Documentation
+- `readme` - Generate comprehensive README
+- `contributing` - Create CONTRIBUTING.md guide
+- `api-docs` - Generate API documentation
+
+### 🛠️ Development
+- `fix-build` - Fix TypeScript/build errors
+- `upgrade-deps` - Upgrade dependencies safely
+- `add-tests` - Generate test suites
+- `setup-ci` - Configure CI/CD pipelines
+
+### ✅ Code Quality
+- `add-eslint` - Set up ESLint configuration
+- `format-code` - Apply consistent formatting
+- `add-types` - Add TypeScript definitions
+
+## 🎮 Interactive Mode
+
+Launch without arguments to enter the interactive command selector:
+
+```bash
+1shot
 ```
 
-## 🏗️ Architecture
+Navigate with:
+- ↑↓ - Move selection
+- / - Search commands
+- Enter - Execute command
+- ESC - Cancel
 
-This is a monorepo built with modern tooling:
+## ⚙️ Configuration
+
+Create a `.1shot` config file in your project:
+
+```json
+{
+  "defaultCommands": ["readme", "fix-build"],
+  "gitCheck": true,
+  "autoCommit": false
+}
+```
+
+## 🔧 Development
+
+This is a monorepo managed with pnpm and Turbo:
+
+```bash
+# Install dependencies
+pnpm install
+
+# Run development mode
+pnpm dev
+
+# Build all packages
+pnpm build
+```
+
+### 📁 Project Structure
 
 ```
 1shot/
 ├── packages/
-│   ├── 1shot/              # Main CLI tool
-│   ├── landing/            # Next.js landing page
-│   ├── assistant-ui-react-core/ # Core React components
-│   └── tap/                # Additional utilities
-├── pnpm-workspace.yaml     # Workspace configuration
-└── turbo.json             # Build orchestration
+│   ├── 1shot/              # Main CLI package
+│   ├── assistant-ui-react-core/  # Core UI components
+│   └── x-buildutils/        # Build utilities
+├── package.json
+└── turbo.json
 ```
 
-### Tech Stack
-- **TypeScript** - Type-safe development
-- **Node.js ESM** - Modern JavaScript modules
-- **Vite** - Fast build tooling
-- **Ink + React** - Beautiful terminal UIs
-- **pnpm** - Efficient package management
-- **Turbo** - Monorepo build system
+## 📋 Requirements
 
-## 🔧 Development
+- Node.js 18+
+- Git (for repository awareness)
+- Anthropic API key
 
-### Setup
+## 🔑 API Key
+
+Get your Anthropic API key from [console.anthropic.com](https://console.anthropic.com) and set it as an environment variable:
+
 ```bash
-# Clone the repository
-git clone https://github.com/assistant-ui/1shot.git
-cd 1shot
-
-# Install dependencies
-pnpm install
-
-# Build all packages
-pnpm build
-
-# Start development mode
-pnpm dev
+export ANTHROPIC_API_KEY=sk-ant-...
 ```
-
-### Adding New Commands
-1. Edit `packages/1shot/src/registry.ts`
-2. Add your command with system prompt and user prompt
-3. Build and test: `pnpm build && npx 1shot your-command`
-
-### Project Structure
-- **Commands** are defined in `registry.ts` with system and user prompts
-- **CLI interface** is built with Ink and React components
-- **Build system** uses Vite for fast compilation
-- **Versioning** managed with Changeset
 
 ## 🤝 Contributing
 
-We welcome contributions! Here's how to get started:
-
-1. **Fork the repository**
-2. **Create a feature branch**: `git checkout -b feature/amazing-command`
-3. **Add your command** to the registry
-4. **Test thoroughly**: `pnpm build && npx 1shot your-command`
-5. **Submit a pull request**
-
-### Command Guidelines
-- Commands should solve common development tasks
-- Include clear, specific system prompts
-- Test with various project types
-- Follow existing naming conventions
+We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) for details.
 
 ## 📄 License
 
-MIT License - see [LICENSE](LICENSE) for details.
+MIT © 1shot Contributors
 
-## 🔗 Links
+## 💬 Support
 
-- [Landing Page](https://1shot.dev)
-- [Command Registry](https://1shot.dev/registry)
-- [GitHub Repository](https://github.com/assistant-ui/1shot)
-- [Assistant UI](https://github.com/assistant-ui/assistant-ui)
+- **Issues:** [GitHub Issues](https://github.com/your-org/1shot/issues)
+- **Discussions:** [GitHub Discussions](https://github.com/your-org/1shot/discussions)
+- **Documentation:** [Full Documentation](https://docs.1shot.dev)
 
 ---
 
-**Made with ❤️ by the Assistant UI team**
+🏗️ Built with ❤️ using Claude AI and React
