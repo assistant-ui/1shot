@@ -1,32 +1,17 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import { Box, Text } from "ink";
 import { useTerminalSize } from "../hooks/useTerminalSize";
-import { useThread } from "@assistant-ui/react-core";
 
 interface SystemPromptBoxProps {
   summary?: string | undefined;
+  mcpServers?: Record<string, { command: string; args: string[] }> | undefined;
 }
 
 export const SystemPromptBox: React.FC<SystemPromptBoxProps> = ({ 
-  summary
+  summary,
+  mcpServers,
 }) => {
   const { columns } = useTerminalSize();
-  const isRunning = useThread((t) => t.isRunning);
-  const [showTarget, setShowTarget] = useState(true);
-
-  useEffect(() => {
-    if (!isRunning) {
-      setShowTarget(true); // Always show when not running
-      return;
-    }
-
-    const interval = setInterval(() => {
-      setShowTarget(prev => !prev);
-    }, 1000); // Blink every 1s
-
-    return () => clearInterval(interval);
-  }, [isRunning]);
-
   return (
     <Box 
       borderStyle="round" 
@@ -39,7 +24,7 @@ export const SystemPromptBox: React.FC<SystemPromptBoxProps> = ({
     >
       <Box marginBottom={2}>
         <Text bold color="blue">
-          ({showTarget ? '●' : ' '}) 1Shot Instructions
+          (●) 1Shot Instructions
         </Text>
       </Box>
       
@@ -48,6 +33,20 @@ export const SystemPromptBox: React.FC<SystemPromptBoxProps> = ({
           <Text color="cyan" wrap="wrap">
             {summary}
           </Text>
+        </Box>
+      )}
+      {mcpServers && Object.keys(mcpServers).length > 0 && (
+        <Box flexDirection="column" marginTop={1}>
+          <Text color="yellow" bold>
+            MCP Servers:
+          </Text>
+          {Object.entries(mcpServers).map(([name, config]) => (
+            <Box key={name} marginLeft={2}>
+              <Text color="cyan">
+                • {name}: {config.command} {config.args.join(' ')}
+              </Text>
+            </Box>
+          ))}
         </Box>
       )}
     </Box>

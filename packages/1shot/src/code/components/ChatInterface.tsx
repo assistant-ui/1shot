@@ -14,11 +14,13 @@ import { useProgress } from "../contexts/ProgressContext";
 interface ChatInterfaceProps {
   showComposer?: boolean;
   systemPrompt?: string | undefined;
+  mcpServers?: Record<string, { command: string; args: string[] }> | undefined;
 }
 
 export const ChatInterface: React.FC<ChatInterfaceProps> = ({ 
   showComposer = true, 
-  systemPrompt
+  systemPrompt,
+  mcpServers,
 }) => {
   const { columns } = useTerminalSize();
   const messagesLength = useThread((t) => t.messages.length);
@@ -46,8 +48,8 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
   return (
     <Box flexDirection="column" height="100%" width={columns}>
       <Box flexDirection="column" flexGrow={1}>
-        <Box marginY={1} flexDirection="column">
-          <SystemPromptBox summary={systemPrompt} />
+        <Box flexDirection="column">
+          <SystemPromptBox summary={systemPrompt} mcpServers={mcpServers} />
         </Box>
         
         {/* Messages Box - Always visible when there are messages */}

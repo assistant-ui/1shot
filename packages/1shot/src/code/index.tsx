@@ -12,12 +12,12 @@ export interface RenderAssistantCodeConfig extends AssistantCodeConfig {
 }
 
 export const renderAssistantCode = (config: RenderAssistantCodeConfig) => {
-  const { BehaviorComponent = () => null, showComposer = true, systemPrompt, ...assistantConfig } = config;
+  const { BehaviorComponent = () => null, showComposer = true, systemPrompt, mcpServers, ...assistantConfig } = config;
   
   render(
     <ProgressProvider>
       <ChatProvider config={assistantConfig}>
-        <ChatInterface showComposer={showComposer} systemPrompt={systemPrompt} />
+        <ChatInterface showComposer={showComposer} systemPrompt={systemPrompt} mcpServers={mcpServers} />
         <BehaviorComponent />
       </ChatProvider>
     </ProgressProvider>
