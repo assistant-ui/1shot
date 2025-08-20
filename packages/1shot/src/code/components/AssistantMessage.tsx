@@ -1,39 +1,13 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { Box, Text } from "ink";
 import {
   MessagePrimitiveParts,
   useAssistantActions,
-  usePart,
   useTextPart,
   useToolPart,
 } from "@assistant-ui/react-core";
 import { PermissionRequest } from "./PermissionRequest";
 import { useProgress } from "../contexts/ProgressContext";
-
-const BlinkingText = ({ children }: { children: React.ReactNode }) => {
-  const [isBlinking, setIsBlinking] = useState(false);
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setIsBlinking((prev) => !prev);
-    }, 1000);
-    return () => clearInterval(interval);
-  }, []);
-
-  return <Text color={isBlinking ? "black" : "blackBright"}>{children}</Text>;
-};
-
-const AssistantPartIndicator = () => {
-  const status = usePart((p) => {
-    if (p.type === "text") return "neutral";
-    if (p.state === "output-available") return "success";
-    if (p.state === "output-error") return "error";
-    return "in_progress";
-  });
-
-  if (status === "neutral") return <Text>⏺</Text>;
-  if (status === "in_progress") return <BlinkingText>⏺</BlinkingText>;
-  return <Text color={status === "success" ? "green" : "red"}>⏺</Text>;
-};
 
 const AssistantPartContainer = ({
   children,
@@ -42,7 +16,7 @@ const AssistantPartContainer = ({
 }) => {
   return (
     <Box marginBottom={1}>
-      <AssistantPartIndicator />
+      <Text>⏺</Text>
       <Box flexDirection="column">{children}</Box>
     </Box>
   );

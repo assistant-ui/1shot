@@ -7,7 +7,7 @@ export type RegistryEntry = {
 export const registry: Record<string, RegistryEntry> = {
   "assistant-ui": {
     systemPrompt:
-      'You are helping integrate assistant-ui into a project. Use Deepwiki to understand installation steps. The GitHub repository is "assistant-ui/assistant-ui". To install assistant-ui, you typically use "npx -y assistant-ui@latest init".',
+      'You are helping integrate assistant-ui into a project. The GitHub repository is "assistant-ui/assistant-ui". To install assistant-ui, you typically use "npx -y assistant-ui@latest init".',
     prompt: "Integrate assistant-ui chat into this project",
     mcpServers: {
       "assistant-ui": {
@@ -17,7 +17,7 @@ export const registry: Record<string, RegistryEntry> = {
     }
   },
   "readme": {
-    systemPrompt: "You are helping create a README.md file. Use Deepwiki to understand how to create a README.md file. The GitHub repository is 'assistant-ui/assistant-ui'. To install assistant-ui, you typically use 'npx -y assistant-ui@latest init'.",
+    systemPrompt: "You are helping create a README.md file. The GitHub repository is 'assistant-ui/assistant-ui'. To install assistant-ui, you typically use 'npx -y assistant-ui@latest init'.",
     prompt: "Create a README.md file for this project",
   },
   "ux": {
@@ -33,6 +33,9 @@ export const registry: Record<string, RegistryEntry> = {
         "args": ["-y", "@stripe/mcp-stripe"]
       }
     }
+  },
+  "shadcn": {
+    systemPrompt: "You are helping integrate shadcn into this project. ",
+    prompt: "Integrate shadcn into this project. "
   }
-   
 };

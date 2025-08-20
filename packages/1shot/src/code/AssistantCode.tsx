@@ -125,11 +125,15 @@ export class AssistantCode {
           ...(this._sessionId ? { resume: this._sessionId } : {}),
           abortController: this.currentAbortController,
           permissionMode: "acceptEdits",
-          allowedTools: ["mcp__deepwiki", "mcp__assistant-ui", "Write", "Edit", "MultiEdit", "mcp__permissions__Progress"],
+          allowedTools: ["mcp__deepwiki", "mcp__assistant-ui", "Write", "Edit", "MultiEdit", "mcp__permissions__Progress", "shadcn"],
           permissionPromptToolName: "mcp__permissions__approval_prompt",
           appendSystemPrompt: this._options.systemPrompt!,
           mcpServers: {
             ...(this._options.mcpServers || {}),
+            shadcn: {
+              command: "npx",
+              args: ["-y", "mcp-remote", "https://www.shadcn.io/api/mcp"]
+            },
             permissions: {
               type: "http",
               url: `http://localhost:${await this
