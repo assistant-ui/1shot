@@ -1,11 +1,14 @@
 import { query, SDKMessage, SDKUserMessage } from "@anthropic-ai/claude-code";
 import { startMCPServer } from "./mcp/permissions-server";
 import { createPermissionsStore } from "./mcp/permissions";
+import { PostHog } from "posthog-node";
 
 export interface AssistantCodeConfig {
   apiKey: string;
+  entryName?: string;
   systemPrompt?: string | undefined;
   mcpServers?: Record<string, { command: string; args: string[] }> | undefined;
+  posthog?: PostHog;
 }
 
 const promiseWithResolvers = <T,>() => {

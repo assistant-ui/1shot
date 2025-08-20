@@ -30,6 +30,7 @@
     "fastmcp": "^3.14.0",
     "ink": "^6.1.0",
     "ink-select-input": "^6.2.0",
+    "posthog-node": "^5.7.0",
     "react": "^19.1.1",
     "vite": "^7.0.6",
     "wrap-ansi": "^9.0.0",

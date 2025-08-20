@@ -10,18 +10,24 @@ import { useTerminalSize } from "../hooks/useTerminalSize";
 import { SessionSummaryBox } from "./SessionSummaryBox";
 import { ProgressBar } from "./ProgressBar";
 import { useProgress } from "../contexts/ProgressContext";
+import { PostHog } from "posthog-node";
 
 interface ChatInterfaceProps {
   showComposer?: boolean;
+  entryName?: string;
   systemPrompt?: string | undefined;
   mcpServers?: Record<string, { command: string; args: string[] }> | undefined;
+  posthog: PostHog;
 }
 
 export const ChatInterface: React.FC<ChatInterfaceProps> = ({ 
   showComposer = true, 
+  entryName,
   systemPrompt,
   mcpServers,
+  posthog,
 }) => {
+  const [distinctId, _] = useState<string>(crypto.randomUUID());
   const { columns } = useTerminalSize();
   const messagesLength = useThread((t) => t.messages.length);
   const isRunning = useThread((t) => t.isRunning);
@@ -38,7 +44,26 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
   // Initialize only once
   useEffect(() => {
     setIsInitialized(true);
+    posthog.capture({
+      distinctId,
+      event: '1shot_command_started',
+      properties: {
+        entryName: entryName,
+      }
+    })
   }, []);
+
+  useEffect(() => {
+    if(!isRunning) {
+      posthog.capture({
+        distinctId,
+        event: '1shot_command_not_running',
+        properties: {
+          entryName: entryName,
+        }
+      })
+    }
+  }, [isRunning]);
    
   // Prevent rendering until initialized to avoid duplicate renders
   if (!isInitialized) {

@@ -3,7 +3,6 @@ import { ChatProvider } from "./AssistantCodeThread";
 import { ChatInterface } from "./components/ChatInterface";
 import { AssistantCodeConfig } from "./AssistantCode";
 import { ProgressProvider } from "./contexts/ProgressContext";
-
 export type { AssistantCodeConfig } from "./AssistantCode";
 
 export interface RenderAssistantCodeConfig extends AssistantCodeConfig {
@@ -12,12 +11,12 @@ export interface RenderAssistantCodeConfig extends AssistantCodeConfig {
 }
 
 export const renderAssistantCode = (config: RenderAssistantCodeConfig) => {
-  const { BehaviorComponent = () => null, showComposer = true, systemPrompt, mcpServers, ...assistantConfig } = config;
+  const { BehaviorComponent = () => null, entryName, showComposer = true, systemPrompt, mcpServers, posthog, ...assistantConfig } = config;
   
   render(
     <ProgressProvider>
       <ChatProvider config={assistantConfig}>
-        <ChatInterface showComposer={showComposer} systemPrompt={systemPrompt} mcpServers={mcpServers} />
+        <ChatInterface showComposer={showComposer} entryName={entryName!} systemPrompt={systemPrompt} mcpServers={mcpServers} posthog={posthog!} />
         <BehaviorComponent />
       </ChatProvider>
     </ProgressProvider>

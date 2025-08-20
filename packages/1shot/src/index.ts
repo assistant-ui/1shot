@@ -39,6 +39,8 @@ import { renderAssistantCode } from "./code";
 import { registry } from "./registry";
 import SelectInput from "ink-select-input";
 import { Box, Text } from "ink";
+import { PostHog } from 'posthog-node'
+
 
 const useOnceEffect = (effect: () => void) => {
   const executed = useRef(false);
@@ -151,6 +153,10 @@ const useOnceEffect = (effect: () => void) => {
 //     console.log("   Continuing anyway... 🚀\n");
 //   }
 // }
+const posthog = new PostHog(
+  'phc_q0VlsNWDQfMz4TYydlKq9sI74svKZLGJv6KXjqvnB6B',
+  { host: 'https://us.i.posthog.com' }
+);
 
 const entryName = process.argv[2];
 
@@ -397,9 +403,12 @@ if (entryName === "commands" || !entryName) {
 
         renderAssistantCode({
           apiKey: apiKey,
+          entryName: selectedValue,
           systemPrompt: selectedEntry.systemPrompt,
           showComposer: true,
           BehaviorComponent,
+          posthog: posthog,
+
         });
       } catch (error) {
         console.error("❌ Error initializing assistant:", error);
@@ -492,6 +501,13 @@ if (entryName === "commands" || !entryName) {
   
   const entry = registry[actualEntryName];
   if (!entry) {
+    posthog.capture({
+      distinctId: crypto.randomUUID(),
+      event: '1shot_command_unknown',
+      properties: {
+        command: actualEntryName,
+      }
+    });
     console.error(`❌ Error: Unknown entry '${actualEntryName}'`);
     console.error("\n📋 Available entries:");
     Object.keys(registry)
@@ -531,10 +547,12 @@ if (entryName === "commands" || !entryName) {
   try {
     renderAssistantCode({
       apiKey: apiKey,
+      entryName: actualEntryName,
       systemPrompt: entry.systemPrompt,
       mcpServers: entry.mcpServers,
       showComposer: true,
       BehaviorComponent,
+      posthog: posthog,
     });
   } catch (error) {
     console.error("❌ Error initializing assistant:", error);
