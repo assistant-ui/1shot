@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import { ThemeProvider } from "next-themes";
+import { PHProvider } from "@/components/posthog-provider";
+import PostHogPageView from "@/components/posthog-pageview";
+import { Suspense } from "react";
 import "./globals.css";
 
 const inter = Inter({
@@ -169,15 +172,20 @@ export default function RootLayout({
         <link rel="dns-prefetch" href="//fonts.gstatic.com" />
       </head>
       <body className="antialiased">
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="light"
-          enableSystem={false}
-          forcedTheme="light"
-          disableTransitionOnChange={false}
-        >
-          {children}
-        </ThemeProvider>
+        <PHProvider>
+          <Suspense>
+            <PostHogPageView />
+          </Suspense>
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="light"
+            enableSystem={false}
+            forcedTheme="light"
+            disableTransitionOnChange={false}
+          >
+            {children}
+          </ThemeProvider>
+        </PHProvider>
       </body>
     </html>
   );
