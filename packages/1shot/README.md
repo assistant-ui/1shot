@@ -70,11 +70,8 @@ Get your API key from: https://claude.ai/settings/keys
 # Create a comprehensive PRD with best practices
 1shot prd
 
-# Upgrade your React version
-1shot upgrade-react
-
 # Use custom prompt with any command
-1shot readme "Create a detailed README with installation, usage, and API sections"
+1shot prd "Add user personas and an API section."
 
 # Interactive mode - browse and select commands
 1shot commands
