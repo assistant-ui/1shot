@@ -9,12 +9,11 @@
   "scripts": {
     "build": "tsx build.mts",
     "prepublishOnly": "pnpm turbo build",
-    "test": "vitest",
-    "test:run": "vitest run"
+    "test": "vitest run",
+    "test:coverage": "vitest run --coverage --coverage.reporter=text --coverage.reporter=html --coverage.reporter=json-summary"
   },
   "author": "AgentbaseAI Inc.",
   "license": "MIT",
-  "dependencies": {},
   "peerDependencies": {
     "react": "*"
   },
@@ -27,10 +26,12 @@
     "@assistant-ui/x-buildutils": "workspace:*",
     "@types/node": "^26.6.6",
     "@types/react": "*",
-    "@vitest/ui": "^3.2.4",
+    "@vitest/coverage-v8": "^5.0.5",
+    "@vitest/ui": "^5.0.5",
     "tsx": "^4.20.3",
     "typescript": "^5.9.2",
-    "vitest": "^3.2.4"
+    "vite": "^7.0.6",
+    "vitest": "^5.0.5"
   },
   "exports": {
     ".": {
