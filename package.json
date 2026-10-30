@@ -6,7 +6,9 @@
     "build": "turbo build",
     "dev": "turbo dev",
     "ci:version": "changeset version && pnpm install --no-frozen-lockfile",
-    "ci:publish": "turbo build --filter=\"./packages/*\" && changeset publish"
+    "ci:publish": "turbo build --filter=\"./packages/*\" && changeset publish",
+    "test": "turbo test",
+    "test:coverage": "turbo test:coverage"
   },
   "devDependencies": {
     "@changesets/cli": "^2.29.8",
