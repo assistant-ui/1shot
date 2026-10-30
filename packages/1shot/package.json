@@ -32,7 +32,7 @@
     "ink-select-input": "^6.2.0",
     "posthog-node": "^5.7.0",
     "react": "^19.1.1",
-    "vite": "^7.0.6",
+    "vite": "^7.3.7",
     "wrap-ansi": "^9.0.0",
     "zod": "^4.0.15",
     "zustand": "^5.0.7"
@@ -45,7 +45,7 @@
     "@types/react": "^19.1.9",
     "@vitejs/plugin-react": "^4.7.0",
     "autoprefixer": "^10.4.21",
-    "postcss": "^8.5.6",
+    "postcss": "^8.5.31",
     "tailwindcss": "^4.1.11",
     "tsx": "^4.20.3",
     "typescript": "^5.9.2",
