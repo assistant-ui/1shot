@@ -19,8 +19,7 @@ class ControllerImpl<TState extends ReadonlyJSONValue>
   >;
   private _abortController = new AbortController();
   private _accumulator: InstanceType<typeof AssistantStreamAccumulator>;
-  private _pendingOps: AssistantStreamOperation[] = [];
-  private _flushScheduled = false;
+  private _cancelled = false;
   private _draft: any;
 
   constructor(
@@ -42,52 +41,41 @@ class ControllerImpl<TState extends ReadonlyJSONValue>
     return this._draft as TState;
   }
 
+  // Enqueue synchronously so a synchronous execute() can't close the stream
+  // before its operations are written.
   enqueue(operations: readonly AssistantStreamOperation[]) {
-    if (operations.length === 0) return;
-    this._pendingOps.push(...operations);
-    this._scheduleFlush();
+    if (this._cancelled || operations.length === 0) return;
+
+    this._accumulator.append(operations);
+    this._controller.enqueue({
+      snapshot: this._accumulator.state as TState,
+      operations,
+    });
   }
 
   appendText(path: readonly string[], text: string) {
     this.enqueue([{ type: "append-text", path, value: text }]);
   }
 
+  // A cancelled stream is already closed, so settling it again would throw.
   __internalError(error: unknown) {
+    if (this._cancelled) return;
     this._controller.error(error);
   }
 
   __internalClose() {
+    if (this._cancelled) return;
     this._controller.close();
   }
 
   __internalCancel(reason?: unknown) {
+    this._cancelled = true;
     this._abortController.abort(reason);
-  }
-
-  private _scheduleFlush() {
-    if (this._flushScheduled) return;
-    this._flushScheduled = true;
-    queueMicrotask(() => this._flush());
-  }
-
-  private _flush() {
-    this._flushScheduled = false;
-    if (this._pendingOps.length === 0) return;
-
-    const ops = this._pendingOps;
-    this._pendingOps = [];
-
-    this._accumulator.append(ops);
-    const snapshot = this._accumulator.state as TState;
-
-    this._controller.enqueue({ snapshot, operations: ops });
   }
 
   private _createDraftProxy(path: readonly string[]): any {
     const getAtPath = (targetPath: readonly string[]): ReadonlyJSONValue | undefined => {
-      // Read from the latest accumulator state (already includes committed ops)
-      // plus any pending ops we apply virtually
-      // For simplicity, we consider only committed state for reads
+      // enqueue() applies operations immediately, so the accumulator state is current
       let cur: ReadonlyJSONValue | undefined = this._accumulator.state;
       for (const key of targetPath) {
         if (cur == null || typeof cur !== "object") return undefined;
