@@ -50,6 +50,42 @@ async function encodeAndDecode(
 }
 
 describe("AssistantStream serialization and deserialization", () => {
+  it("does not settle the stream after cancellation", async () => {
+    let finishExecution!: () => void;
+    let abortSignal!: AbortSignal;
+    let writeAfterCancel!: () => void;
+    const execution = new Promise<void>((resolve) => {
+      finishExecution = resolve;
+    });
+    const stream = createAssistantStream({
+      execute: (controller) => {
+        abortSignal = controller.abortSignal;
+        writeAfterCancel = () =>
+          controller.enqueue([{ type: "set", path: ["text"], value: "late" }]);
+        return execution;
+      },
+    });
+    const reader = stream.getReader();
+
+    await reader.cancel("consumer stopped");
+
+    expect(abortSignal.aborted).toBe(true);
+    expect(abortSignal.reason).toBe("consumer stopped");
+    expect(writeAfterCancel).not.toThrow();
+
+    // Closing a cancelled stream rejects a promise nothing holds, so only the
+    // process sees it.
+    const unhandledRejections: unknown[] = [];
+    const recordRejection = (reason: unknown) => unhandledRejections.push(reason);
+    process.on("unhandledRejection", recordRejection);
+    finishExecution();
+    await execution;
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    process.off("unhandledRejection", recordRejection);
+
+    expect(unhandledRejections).toEqual([]);
+  });
+
   it("should correctly serialize and deserialize simple objects", async () => {
     const stream = createAssistantStream({
       execute: (controller) => {
