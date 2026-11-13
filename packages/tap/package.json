@@ -14,7 +14,6 @@
   },
   "author": "AgentbaseAI Inc.",
   "license": "MIT",
-  "dependencies": {},
   "peerDependencies": {
     "react": "*"
   },
@@ -27,10 +26,10 @@
     "@assistant-ui/x-buildutils": "workspace:*",
     "@types/node": "^26.6.6",
     "@types/react": "*",
-    "@vitest/ui": "^3.2.4",
+    "@vitest/ui": "^4.1.12",
     "tsx": "^4.20.3",
     "typescript": "^5.9.2",
-    "vitest": "^3.2.4"
+    "vitest": "^4.1.12"
   },
   "exports": {
     ".": {

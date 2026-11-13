@@ -5,3 +5,8 @@ onlyBuiltDependencies:
   - '@anthropic-ai/claude-code'
   - esbuild
   - unrs-resolver
+
+# next 15 (15.5.28, the latest 15.x) pins postcss 8.4.31, which has GHSA-6g55-p6wh-862q and friends. next 16
+# moves to a patched postcss, so drop this with the next 16 upgrade.
+overrides:
+  postcss@<8.5.23: ^8.5.23
