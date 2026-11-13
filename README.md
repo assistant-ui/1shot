@@ -105,6 +105,10 @@ pnpm dev
 
 # Build all packages
 pnpm build
+
+# Run the tests, or the tests with a coverage report
+pnpm test
+pnpm test:coverage
 ```
 
 ### 📁 Project Structure
