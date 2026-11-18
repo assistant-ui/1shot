@@ -1,5 +1,12 @@
 # 1shot
 
+## 0.0.10
+
+### Patch Changes
+
+- Updated dependencies [120815d]
+  - @assistant-ui/react-core@0.0.5
+
 ## 0.0.5
 
 ### Patch Changes
