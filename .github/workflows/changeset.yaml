@@ -7,16 +7,20 @@ on:
 concurrency: ${{ github.workflow }}-${{ github.ref }}
 
 permissions:
-  id-token: write
-  contents: write
-  pull-requests: write
+  contents: read
 
 env:
   CI: true
 
 jobs:
+  # Opens or updates the "chore: update versions" PR. Holds no npm identity.
   version:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    outputs:
+      publish: ${{ steps.unpublished.outputs.publish }}
     steps:
       - name: Checkout code repository
         uses: actions/checkout@v4
@@ -32,24 +36,86 @@ jobs:
           node-version: 26.13.0
           cache: "pnpm"
 
-      - name: Cache turbo build setup
-        uses: actions/cache@v4
-        with:
-          path: .turbo
-          key: ${{ runner.os }}-turbo-${{ github.sha }}
-          restore-keys: |
-            ${{ runner.os }}-turbo-
-
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Create and publish versions
+      - name: Create version PR
+        id: changesets
         uses: changesets/action@v1
         with:
           commit: "chore: update versions"
           title: "chore: update versions"
           version: pnpm ci:version
-          publish: pnpm ci:publish
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      # Publish only when no changesets are pending and some public package
+      # version is not on npm yet, so ordinary pushes never wait for approval.
+      - name: Find unpublished versions
+        id: unpublished
+        if: steps.changesets.outputs.hasChangesets == 'false'
+        run: |
+          publish=false
+          for manifest in packages/*/package.json; do
+            if [ "$(node -p "Boolean(require('./$manifest').private)")" = "true" ]; then
+              continue
+            fi
+            spec=$(node -p "const j=require('./$manifest'); j.name + '@' + j.version")
+            if out=$(npm view "$spec" version 2>&1); then
+              echo "$spec is on npm"
+            elif grep -q E404 <<< "$out"; then
+              echo "$spec is not on npm"
+              publish=true
+            else
+              echo "$out"
+              exit 1
+            fi
+          done
+          echo "publish=$publish" >> "$GITHUB_OUTPUT"
+
+  # npm trusted publishing (OIDC): no npm token exists. Runs in the protected
+  # npm-publish environment (required reviewers, main only).
+  publish:
+    needs: version
+    if: needs.version.outputs.publish == 'true'
+    runs-on: ubuntu-latest
+    environment: npm-publish
+    permissions:
+      contents: write
+      id-token: write
+    steps:
+      - name: Checkout code repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 26.13.0
+          cache: "pnpm"
+          registry-url: https://registry.npmjs.org
+
+      # Trusted publishing needs npm 11.5.1 or newer.
+      - name: Check npm version
+        run: |
+          if [ "$(printf '%s\n' 11.5.1 "$(npm --version)" | sort -V | head -1)" != "11.5.1" ]; then
+            npm install -g npm@11
+          fi
+          npm --version
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      # changeset publish -> pnpm publish -> npm publish, which exchanges the
+      # job's OIDC token for a short-lived publish credential.
+      - name: Publish
+        run: pnpm ci:publish
+        env:
+          NPM_CONFIG_PROVENANCE: true
+
+      - name: Push release tags
+        run: git push origin --tags
